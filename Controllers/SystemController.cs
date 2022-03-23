@@ -12,16 +12,13 @@ namespace backend.Controllers
         public SystemController(GameLeaderboards leaderboards)
         {
             _leaderboards = leaderboards;
-
-
-            
         }
 
         [HttpPost]
 
-        public async Task<IActionResult> ShowFormation(string track, string name, long time)
+        public async Task<IActionResult> ShowFormation(AddLeaderboardRequest addLeaderboardRequest)
         {
-            _leaderboards.addLeaderboard(track, name, time);
+            _leaderboards.addLeaderboard(addLeaderboardRequest.track, addLeaderboardRequest.name, addLeaderboardRequest.time);
             return Ok();
         }
 
