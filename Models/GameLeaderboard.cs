@@ -7,7 +7,7 @@ namespace backend.Models
         {
             Leaderboards = new Dictionary<string, LeaderboardFormation>();
         }
-        public void addLeaderboard (string trackGiven, string nameGiven, int timeGiven)
+         public void addLeaderboard(string trackGiven, string nameGiven, long timeGiven)
         {
             if(Leaderboards.ContainsKey(trackGiven)) {
                 var newEntryInFormation = new LeaderboardEntry(nameGiven, timeGiven);
@@ -38,9 +38,9 @@ namespace backend.Models
     public class LeaderboardEntry
     {
         public string name { get; set; }
-        public int time { get; set; }
+        public long time { get; set; }
 
-        public LeaderboardEntry(string name, int time)
+        public LeaderboardEntry(string name, long time)
         {
             this.name = name;
             this.time = time;
