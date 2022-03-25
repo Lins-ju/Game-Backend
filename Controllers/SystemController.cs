@@ -18,7 +18,7 @@ namespace backend.Controllers
 
         public async Task<IActionResult> ShowFormation(AddLeaderboardRequest addLeaderboardRequest)
         {
-            _leaderboards.addLeaderboard(addLeaderboardRequest.track, addLeaderboardRequest.name, addLeaderboardRequest.time);
+            _leaderboards.AddLeaderboard(addLeaderboardRequest.Track, addLeaderboardRequest.Name, addLeaderboardRequest.Time);
             return Ok();
         }
 

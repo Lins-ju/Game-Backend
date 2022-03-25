@@ -2,9 +2,9 @@ namespace backend.Models
 {
     public class AddLeaderboardRequest
     {
-        public string track { get; set; }
-        public string name { get; set; }
-        public long time { get; set; }
+        public string Track { get; set; }
+        public string Name { get; set; }
+        public long Time { get; set; }
 
         public AddLeaderboardRequest()
         {
