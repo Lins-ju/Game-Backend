@@ -1,5 +1,4 @@
-using backend.Models;
-using Microsoft.AspNetCore.Cors;
+using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers

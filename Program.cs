@@ -1,7 +1,4 @@
-using backend.Models;
-
-
-
+using Backend.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
