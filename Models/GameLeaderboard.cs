@@ -7,16 +7,16 @@ namespace backend.Models
         {
             Leaderboards = new Dictionary<string, LeaderboardFormation>();
         }
-        public void addLeaderboard (string trackGiven, string nameGiven, int timeGiven)
+        public void AddLeaderboard(string TrackGiven, string NameGiven, long TimeGiven)
         {
-            if(Leaderboards.ContainsKey(trackGiven)) {
-                var newEntryInFormation = new LeaderboardEntry(nameGiven, timeGiven);
-                Leaderboards[trackGiven].BestTimes.Add(newEntryInFormation);
+            if(Leaderboards.ContainsKey(TrackGiven)) {
+                var newEntryInFormation = new LeaderboardEntry(NameGiven, TimeGiven);
+                Leaderboards[TrackGiven].BestTimes.Add(newEntryInFormation);
             } 
             else
             {
-                var newEntry = new LeaderboardFormation(trackGiven, new LeaderboardEntry(nameGiven, timeGiven));
-                Leaderboards.Add(trackGiven, newEntry);
+                var newEntry = new LeaderboardFormation(TrackGiven, new LeaderboardEntry(NameGiven, TimeGiven));
+                Leaderboards.Add(TrackGiven, newEntry);
             }
             
         }
@@ -27,9 +27,9 @@ namespace backend.Models
         public string Track { get; set; }
         public List<LeaderboardEntry> BestTimes { get; set; }
 
-        public LeaderboardFormation(string track_name, LeaderboardEntry entry)
+        public LeaderboardFormation(string TrackName, LeaderboardEntry entry)
         {
-            this.Track = track_name;
+            this.Track = TrackName;
             BestTimes = new List<LeaderboardEntry>();
             BestTimes.Add(entry);
         }
@@ -37,13 +37,13 @@ namespace backend.Models
 
     public class LeaderboardEntry
     {
-        public string name { get; set; }
-        public int time { get; set; }
+        public string Name { get; set; }
+        public long Time { get; set; }
 
-        public LeaderboardEntry(string name, int time)
+        public LeaderboardEntry(string Name, long Time)
         {
-            this.name = name;
-            this.time = time;
+            this.Name = Name;
+            this.Time = Time;
         }
     }
 
