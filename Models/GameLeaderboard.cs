@@ -1,4 +1,6 @@
-namespace backend.Models
+using System.Collections.Generic;
+
+namespace Backend.Models
 {
     public class GameLeaderboards
     {
