@@ -31,4 +31,8 @@ msbuild.wrn
 .idea/
 
 # Visual Studio 2015
+<<<<<<< HEAD
 .vs/
+=======
+.vs/
+>>>>>>> main
