@@ -1,5 +1,8 @@
 using Backend.Models;
+<<<<<<< HEAD
 using Microsoft.AspNetCore.Cors;
+=======
+>>>>>>> main
 using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
