@@ -15,8 +15,6 @@ namespace Backend.Controllers
             this.leaderboardService = leaderboardService;
         }
 
-        ConnectionMultiplexer redis = ConnectionMultiplexer.Connect("localhost:6379");
-
 
         [Route("save")]
         [HttpPost]
