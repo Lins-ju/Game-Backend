@@ -5,7 +5,6 @@ namespace Backend.Models
 {
     public class LeaderboardEntry
     {
-
         [JsonPropertyName("userId")]   
         public string UserId { get; set; }
 

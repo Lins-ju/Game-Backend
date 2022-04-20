@@ -8,7 +8,7 @@ namespace Backend.Controllers
     [Route("api/leaderboard")]
     public class LeaderboardController : ControllerBase
     {
-        private readonly Domain.LeaderboardService leaderboardService;
+        private readonly LeaderboardService leaderboardService;
 
         public LeaderboardController(LeaderboardService leaderboardService)
         {
@@ -19,18 +19,25 @@ namespace Backend.Controllers
         [Route("save")]
         [HttpPost]
 
-        public void SaveScore(EntryKey entryKey, LeaderboardEntry leaderboard)
+        public void SaveScore(SaveScoreRequest saveScoreRequest)
         {
-            leaderboardService.SaveScore(entryKey.TrackName, leaderboard.UserId, leaderboard.Score);
+            leaderboardService.SaveScore(saveScoreRequest.TrackName, saveScoreRequest.UserId, saveScoreRequest.Score);
+        }
+
+        public void SaveCar()
+        {
+            
         }
 
 
         [Route("get")]
         [HttpGet]
 
-        public async Task<Leaderboard> GetScores(string trackName)
+        public async Task<List<LeaderboardEntry>> GetScores(GetScoreResponse getScoreResponse)
         {
-            return await leaderboardService.GetScores(trackName);
-        } 
+            var scores = await leaderboardService.GetScores(getScoreResponse.TrackName);
+
+            return scores.Leaderboards;
+        }
     }
 }
