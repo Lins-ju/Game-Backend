@@ -1,10 +1,11 @@
 namespace Backend.Models
 {
-    public class GetScoreResponse
+    public class TrackAndUserKey
     {
         public string TrackName { get; set; }
+        public string UserName { get; set; }
 
-        public GetScoreResponse()
+        public TrackAndUserKey()
         {
             
         }

@@ -11,7 +11,7 @@ namespace Backend.Models
         [JsonPropertyName("score")]
         public double Score { get; set; }
 
-        
+    
         public LeaderboardEntry()
         {
 

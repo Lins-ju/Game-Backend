@@ -4,20 +4,19 @@ namespace Backend.Models
 {
     public class Cars
     {
+        [JsonPropertyName("userName")]
+        public string UserName { get; set; }
 
         [JsonPropertyName("carName")]
-        public string CarName { get; set; }
-
-        [JsonPropertyName("maxSpeed")]
-        public int MaxSpeed { get; set; }
+        public int CarId { get; set; }
 
         [JsonPropertyName("skinId")]
         public int SkinId { get; set; }
 
-        public Cars(string carName, int maxSpeed, int skinId)
+        public Cars(string userName, int carId, int skinId)
         {
-            this.CarName = carName;
-            this.MaxSpeed = maxSpeed;
+            this.UserName = userName;
+            this.CarId = carId;
             this.SkinId = skinId;
         }
     }

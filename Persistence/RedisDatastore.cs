@@ -40,13 +40,41 @@ namespace Backend.Persistence
             return response;
         }
 
-        public async void SaveCar(string userName, string carName, int maxSpeed, int skinId)
+        public async void SaveCar(string userName, int carId, int skinId)
         {
-            var carSelected =  new Cars(carName, maxSpeed, skinId);
+            var carSelected =  new Cars(userName, carId, skinId);
 
             var carSerialized = JsonSerializer.Serialize(carSelected, option);
 
             var post = await db.StringSetAsync(userName, carSerialized);
+        }
+
+        public async Task<Cars> GetCar(string userName)
+        {
+            var getCarSerialized = await db.StringGetAsync(userName);
+
+            var carDeserilized = JsonSerializer.Deserialize<Cars>(getCarSerialized);
+
+            var carObj = new Cars(carDeserilized.UserName, carDeserilized.CarId, carDeserilized.SkinId);
+
+            return carObj;
+        }
+        
+
+        public async Task<GetScoreAndCarRequest> BindScoreAndCar(string trackName, string userName)
+        {
+            // Getting Score
+
+            var scoreResponse = await GetScores(trackName);
+
+            // Getting Car
+            
+            var carResponse = await GetCar(userName);
+            
+
+            var bind = new GetScoreAndCarRequest(scoreResponse, carResponse);
+
+            return bind; 
         }
         
     }

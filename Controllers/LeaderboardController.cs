@@ -22,22 +22,19 @@ namespace Backend.Controllers
         public void SaveScore(SaveScoreRequest saveScoreRequest)
         {
             leaderboardService.SaveScore(saveScoreRequest.TrackName, saveScoreRequest.UserId, saveScoreRequest.Score);
-        }
-
-        public void SaveCar()
-        {
-            
+            leaderboardService.SaveCar(saveScoreRequest.UserId, saveScoreRequest.CarId, saveScoreRequest.SkinId); // Player Data
         }
 
 
         [Route("get")]
         [HttpGet]
 
-        public async Task<List<LeaderboardEntry>> GetScores(GetScoreResponse getScoreResponse)
+        public async Task<GetScoreAndCarRequest> GetLeaderboard(TrackAndUserKey trackAndUserKey)
         {
-            var scores = await leaderboardService.GetScores(getScoreResponse.TrackName);
 
-            return scores.Leaderboards;
+            var bindedResults = await leaderboardService.BindScoreAndCar(trackAndUserKey.TrackName, trackAndUserKey.UserName);
+
+            return bindedResults;
         }
     }
 }

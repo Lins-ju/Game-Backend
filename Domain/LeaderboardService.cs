@@ -24,9 +24,19 @@ namespace Backend.Domain
         }
 
 
-        public async void SaveCar(string userName, string carName, int maxSpeed, int skinId)
+        public async void SaveCar(string userName, int carId, int skinId)
         {
-            redisDatastore.SaveCar(userName, carName, maxSpeed, skinId);
+            redisDatastore.SaveCar(userName, carId, skinId);
+        }
+
+        public async Task<Cars> GetCar(string userName)
+        {
+            return await redisDatastore.GetCar(userName);
+        }
+
+        public async Task<GetScoreAndCarRequest> BindScoreAndCar(string trackName, string userName)
+        {
+            return await redisDatastore.BindScoreAndCar(trackName, userName);
         }
     }
 }
