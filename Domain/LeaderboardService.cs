@@ -11,9 +11,9 @@ namespace Backend.Domain
             this.redisDatastore = redisDatastore;
         }
         
-           public void SaveScore(string trackName, string name, double time)
+           public void SaveScoreAndCar(string trackName, string userName, double time, int carId, int skinId)
         {
-            redisDatastore.SaveScore(trackName, name, time);
+            redisDatastore.SaveScoreAndCar(trackName, userName, time, carId, skinId);
 
         }
 
@@ -34,9 +34,21 @@ namespace Backend.Domain
             return await redisDatastore.GetCar(userName);
         }
 
-        public async Task<GetScoreAndCarRequest> BindScoreAndCar(string trackName, string userName)
+        public async Task<List<GetScoreAndCarRequest>> BindLeaderboardInfo(string trackName)
         {
-            return await redisDatastore.BindScoreAndCar(trackName, userName);
+            // Getting Score
+
+            var scoreResponse = await redisDatastore.GetScores(trackName);
+
+            // Getting Car
+
+            var currentUserId = new GetCurrentUserId(scoreResponse);
+
+            var carResponse = await redisDatastore.GetCar(currentUserId.currentUserId);
+            
+            var bind = new AllScoresAndCarsResponse(scoreResponse, carResponse);
+
+            return bind.ScoreAndCarRequests;
         }
     }
 }

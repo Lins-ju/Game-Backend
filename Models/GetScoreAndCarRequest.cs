@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using StackExchange.Redis;
 
 namespace Backend.Models
 {
@@ -16,20 +17,10 @@ namespace Backend.Models
         [JsonPropertyName("skinId")]
         public int SkinId { get; set; }
 
-
-
-        public GetScoreAndCarRequest(string userName, double score, int carId, int skinId)
+        public GetScoreAndCarRequest(LeaderboardEntry leaderboards, Cars cars)
         {
-            this.UserName = userName;
-            this.Score = score;
-            this.CarId = carId;
-            this.SkinId = skinId;
-        }
-
-        public GetScoreAndCarRequest(Leaderboard leaderboard, Cars cars)
-        {
-            this.UserName = leaderboard.Leaderboards[0].UserId;
-            this.Score = leaderboard.Leaderboards[0].Score;
+            this.UserName = leaderboards.UserId;
+            this.Score = leaderboards.Score;
             this.CarId = cars.CarId;
             this.SkinId = cars.SkinId;
         }

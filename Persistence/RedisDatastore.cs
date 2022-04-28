@@ -25,9 +25,19 @@ namespace Backend.Persistence
             db = redis.GetDatabase();
         }
         
-        public void SaveScore(string trackName, string name, double time)
+        public async void SaveScoreAndCar(string trackName, string userName, double time, int carId, int skinId)
         {
-            db.SortedSetAdd(trackName, name, time);
+            //Posting Score
+
+            var postScore = await db.SortedSetAddAsync(trackName, userName, time);
+
+            //Posting Car (PlayerData)
+
+            var carSelected =  new Cars(userName, carId, skinId);
+
+            var carSerialized = JsonSerializer.Serialize(carSelected, option);
+
+            var post = await db.StringSetAsync(userName, carSerialized);
         }
 
 
@@ -59,23 +69,5 @@ namespace Backend.Persistence
 
             return carObj;
         }
-        
-
-        public async Task<GetScoreAndCarRequest> BindScoreAndCar(string trackName, string userName)
-        {
-            // Getting Score
-
-            var scoreResponse = await GetScores(trackName);
-
-            // Getting Car
-            
-            var carResponse = await GetCar(userName);
-            
-
-            var bind = new GetScoreAndCarRequest(scoreResponse, carResponse);
-
-            return bind; 
-        }
-        
     }
 }

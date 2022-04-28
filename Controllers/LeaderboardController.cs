@@ -19,20 +19,19 @@ namespace Backend.Controllers
         [Route("save")]
         [HttpPost]
 
-        public void SaveScore(SaveScoreRequest saveScoreRequest)
+        public void SaveLeaderboardInfo(SaveScoreRequest saveScoreRequest)
         {
-            leaderboardService.SaveScore(saveScoreRequest.TrackName, saveScoreRequest.UserId, saveScoreRequest.Score);
-            leaderboardService.SaveCar(saveScoreRequest.UserId, saveScoreRequest.CarId, saveScoreRequest.SkinId); // Player Data
+            leaderboardService.SaveScoreAndCar(saveScoreRequest.TrackName, saveScoreRequest.UserId, saveScoreRequest.Score, saveScoreRequest.CarId, saveScoreRequest.SkinId);
         }
 
 
         [Route("get")]
         [HttpGet]
 
-        public async Task<GetScoreAndCarRequest> GetLeaderboard(TrackAndUserKey trackAndUserKey)
+        public async Task<List<GetScoreAndCarRequest>> GetLeaderboardInfo(TrackKey trackKey)
         {
 
-            var bindedResults = await leaderboardService.BindScoreAndCar(trackAndUserKey.TrackName, trackAndUserKey.UserName);
+            var bindedResults = await leaderboardService.BindLeaderboardInfo(trackKey.TrackName);
 
             return bindedResults;
         }

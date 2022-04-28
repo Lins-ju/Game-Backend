@@ -1,17 +1,18 @@
+using StackExchange.Redis;
+
 namespace Backend.Models
 {
-
-    // IN DEVELOPMENT, SO NOT IN USE
-    public class AllScoresAndCars
+    public class AllScoresAndCarsResponse
     {
-        public List<GetScoreAndCarRequest> ScoreAndCarRequests = new List<GetScoreAndCarRequest>();
+        public List<GetScoreAndCarRequest> ScoreAndCarRequests;
 
-        public AllScoresAndCars(Leaderboard entries, Cars cars)
+        public AllScoresAndCarsResponse(Leaderboard leaderboard, Cars cars)
         {
             ScoreAndCarRequests = new List<GetScoreAndCarRequest>();
-            foreach(var obj in entries.Leaderboards)
+
+            foreach(var item in leaderboard.Leaderboards)
             {
-                //ScoreAndCarRequests.Add(new GetScoreAndCarRequest(obj, cars));
+                ScoreAndCarRequests.Add(new GetScoreAndCarRequest(item, cars));
             }
         }
     }

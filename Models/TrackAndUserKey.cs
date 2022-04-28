@@ -1,11 +1,10 @@
 namespace Backend.Models
 {
-    public class TrackAndUserKey
+    public class TrackKey
     {
         public string TrackName { get; set; }
-        public string UserName { get; set; }
 
-        public TrackAndUserKey()
+        public TrackKey()
         {
             
         }

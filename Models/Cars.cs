@@ -19,5 +19,10 @@ namespace Backend.Models
             this.CarId = carId;
             this.SkinId = skinId;
         }
+
+        public Cars()
+        {
+            
+        }
     }
 }
