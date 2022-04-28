@@ -28,12 +28,12 @@ namespace Backend.Controllers
         [Route("get")]
         [HttpGet]
 
-        public async Task<List<GetScoreAndCarRequest>> GetLeaderboardInfo(TrackKey trackKey)
+        public async Task<LeaderboardList> GetLeaderboardInfo(TrackKey trackKey)
         {
 
-            var bindedResults = await leaderboardService.BindLeaderboardInfo(trackKey.TrackName);
+            var bindedResult = await leaderboardService.BindLeaderboardInfo(trackKey.TrackName);
 
-            return bindedResults;
+            return bindedResult;
         }
     }
 }

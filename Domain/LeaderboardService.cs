@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Persistence;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Domain
 {
@@ -24,7 +25,7 @@ namespace Backend.Domain
         }
 
 
-        public async void SaveCar(string userName, int carId, int skinId)
+        public void SaveCar(string userName, int carId, int skinId)
         {
             redisDatastore.SaveCar(userName, carId, skinId);
         }
@@ -34,7 +35,7 @@ namespace Backend.Domain
             return await redisDatastore.GetCar(userName);
         }
 
-        public async Task<List<GetScoreAndCarRequest>> BindLeaderboardInfo(string trackName)
+        public async Task<LeaderboardList> BindLeaderboardInfo(string trackName)
         {
             // Getting Score
 
@@ -46,9 +47,9 @@ namespace Backend.Domain
 
             var carResponse = await redisDatastore.GetCar(currentUserId.currentUserId);
             
-            var bind = new AllScoresAndCarsResponse(scoreResponse, carResponse);
+            var bind = new LeaderboardList(scoreResponse, carResponse);
 
-            return bind.ScoreAndCarRequests;
+            return bind;
         }
     }
 }
