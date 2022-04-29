@@ -2,10 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
-    public class Cars
+    public class LeaderboardDetails
     {
         [JsonPropertyName("userName")]
-        public string UserName { get; set; }
+        public string UserId { get; set; }
 
         [JsonPropertyName("carName")]
         public int CarId { get; set; }
@@ -13,16 +13,16 @@ namespace Backend.Models
         [JsonPropertyName("skinId")]
         public int SkinId { get; set; }
 
-        public Cars(string userName, int carId, int skinId)
+        [JsonPropertyName("timeStamp")]
+        public long TimeStamp { get; set; }
+
+
+        public LeaderboardDetails(string userId, int carId, int skinId)
         {
-            this.UserName = userName;
+            this.UserId = userId;
             this.CarId = carId;
             this.SkinId = skinId;
-        }
-
-        public Cars()
-        {
-            
+            this.TimeStamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         }
     }
 }

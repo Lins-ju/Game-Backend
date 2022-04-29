@@ -25,49 +25,42 @@ namespace Backend.Persistence
             db = redis.GetDatabase();
         }
         
-        public async void SaveScoreAndCar(string trackName, string userName, double time, int carId, int skinId)
+        public async void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
-            //Posting Score
 
-            var postScore = await db.SortedSetAddAsync(trackName, userName, time);
+            var postScore = await db.SortedSetAddAsync(trackId, userId, time);
 
-            //Posting Car (PlayerData)
+            var detailsSelected =  new LeaderboardDetails(userId, carId, skinId);
 
-            var carSelected =  new Cars(userName, carId, skinId);
+            var detailsSerialized = JsonSerializer.Serialize(detailsSelected, option);
 
-            var carSerialized = JsonSerializer.Serialize(carSelected, option);
-
-            var post = await db.StringSetAsync(userName, carSerialized);
+            var post = await db.StringSetAsync(GetLeaderboardDetailsKey(userId, trackId), detailsSerialized);
         }
 
 
-        public async Task<Leaderboard> GetScores(string trackName)
+        public async Task<Leaderboard> GetScores(string trackId)
         {
-            var objs = await db.SortedSetRangeByRankWithScoresAsync(trackName);
+            var objs = await db.SortedSetRangeByRankWithScoresAsync(trackId);
 
             var response = new Leaderboard(objs);
 
             return response;
         }
 
-        public async void SaveCar(string userName, int carId, int skinId)
+        public async Task<LeaderboardDetails> GetLeaderboardDetails(string userId, string trackId)
         {
-            var carSelected =  new Cars(userName, carId, skinId);
+            var getdetailsSerialized = await db.StringGetAsync(GetLeaderboardDetailsKey(userId, trackId));
 
-            var carSerialized = JsonSerializer.Serialize(carSelected, option);
+            var detailsDeserilized = JsonSerializer.Deserialize<LeaderboardDetails>(getdetailsSerialized);
 
-            var post = await db.StringSetAsync(userName, carSerialized);
+            var detailsObj = new LeaderboardDetails(detailsDeserilized.UserId, detailsDeserilized.CarId, detailsDeserilized.SkinId);
+
+            return detailsObj;
         }
 
-        public async Task<Cars> GetCar(string userName)
+        public string GetLeaderboardDetailsKey(string userId, string trackId)
         {
-            var getCarSerialized = await db.StringGetAsync(userName);
-
-            var carDeserilized = JsonSerializer.Deserialize<Cars>(getCarSerialized);
-
-            var carObj = new Cars(carDeserilized.UserName, carDeserilized.CarId, carDeserilized.SkinId);
-
-            return carObj;
+            return userId + ":" + trackId;
         }
     }
 }

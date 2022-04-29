@@ -7,7 +7,7 @@ namespace Backend.Models
         //Leaderboard Data
 
         [JsonPropertyName("trackName")] 
-        public string TrackName { get; set; }
+        public string TrackId { get; set; }
 
         [JsonPropertyName("userId")]   
         public string UserId { get; set; }
@@ -23,9 +23,12 @@ namespace Backend.Models
         [JsonPropertyName("SkinId")]
         public int SkinId { get; set; }
 
-        public SaveScoreRequest()
+        public SaveScoreRequest(string trackId, string userId, double score, int carId, int skinId)
         {
-            
+            this.TrackId = trackId;
+            this.UserId = userId;
+            this.Score = score;
+            this.SkinId = skinId;
         }
     }
 }

@@ -12,44 +12,32 @@ namespace Backend.Domain
             this.redisDatastore = redisDatastore;
         }
         
-           public void SaveScoreAndCar(string trackName, string userName, double time, int carId, int skinId)
+           public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
-            redisDatastore.SaveScoreAndCar(trackName, userName, time, carId, skinId);
+            redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
 
         }
 
 
-        public async Task<Leaderboard> GetScores(string trackName)
+        public async Task<Leaderboard> GetScores(string trackId)
         {
-            return await redisDatastore.GetScores(trackName);
+            return await redisDatastore.GetScores(trackId);
         }
 
-
-        public void SaveCar(string userName, int carId, int skinId)
-        {
-            redisDatastore.SaveCar(userName, carId, skinId);
-        }
-
-        public async Task<Cars> GetCar(string userName)
-        {
-            return await redisDatastore.GetCar(userName);
-        }
-
-        public async Task<LeaderboardList> BindLeaderboardInfo(string trackName)
+        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
         {
             // Getting Score
 
-            var scoreResponse = await redisDatastore.GetScores(trackName);
+            var scoreResponse = await redisDatastore.GetScores(trackId);
 
-            // Getting Car
-
-            var currentUserId = new GetCurrentUserId(scoreResponse);
-
-            var carResponse = await redisDatastore.GetCar(currentUserId.currentUserId);
-            
-            var bind = new LeaderboardList(scoreResponse, carResponse);
-
-            return bind;
+            var response2 = new GetLeaderboardResponse();
+            foreach(var item in scoreResponse.Leaderboards)
+            {
+                var leaderboardDetails = await redisDatastore.GetLeaderboardDetails(item.UserId, trackId);
+                response2.AddLeaderboardRecord(new LeaderboardRecord(item, leaderboardDetails));
+            }
+                
+            return response2;
         }
     }
 }

@@ -11,12 +11,6 @@ namespace Backend.Models
         [JsonPropertyName("score")]
         public double Score { get; set; }
 
-    
-        public LeaderboardEntry()
-        {
-
-        }
-
         public LeaderboardEntry(SortedSetEntry sortedSet)
         {
             this.UserId = sortedSet.Element;
