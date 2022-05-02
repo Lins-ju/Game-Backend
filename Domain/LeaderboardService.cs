@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Persistence;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Domain
 {
@@ -11,32 +12,32 @@ namespace Backend.Domain
             this.redisDatastore = redisDatastore;
         }
         
-           public void SaveScore(string trackName, string name, double time)
+           public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
-            redisDatastore.SaveScore(trackName, name, time);
+            redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
 
         }
 
 
-        public async Task<Leaderboard> GetScores(string trackName)
+        public async Task<Leaderboard> GetScores(string trackId)
         {
-            return await redisDatastore.GetScores(trackName);
+            return await redisDatastore.GetScores(trackId);
         }
 
-
-        public async void SaveCar(string userName, int carId, int skinId)
+        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
         {
-            redisDatastore.SaveCar(userName, carId, skinId);
-        }
+            // Getting Score
 
-        public async Task<Cars> GetCar(string userName)
-        {
-            return await redisDatastore.GetCar(userName);
-        }
+            var scoreResponse = await redisDatastore.GetScores(trackId);
 
-        public async Task<GetScoreAndCarRequest> BindScoreAndCar(string trackName, string userName)
-        {
-            return await redisDatastore.BindScoreAndCar(trackName, userName);
+            var response2 = new GetLeaderboardResponse();
+            foreach(var item in scoreResponse.Leaderboards)
+            {
+                var leaderboardDetails = await redisDatastore.GetLeaderboardDetails(item.UserId, trackId);
+                response2.AddLeaderboardRecord(new LeaderboardRecord(item, leaderboardDetails));
+            }
+                
+            return response2;
         }
     }
 }
