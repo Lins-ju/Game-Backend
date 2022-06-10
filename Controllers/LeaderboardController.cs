@@ -28,7 +28,7 @@ namespace Backend.Controllers
         [Route("get")]
         [HttpGet]
 
-        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(GetLeaderboardRequest getLeaderboardRequest)
+        public async Task<GetFullLeaderboard> GetLeaderboardRecords(GetLeaderboardRequest getLeaderboardRequest)
         {
 
             var bindedResult = await leaderboardService.GetLeaderboardRecords(getLeaderboardRequest.TrackId);

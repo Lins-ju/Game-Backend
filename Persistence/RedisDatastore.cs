@@ -11,10 +11,10 @@ namespace Backend.Persistence
     {
 
         // constructor com IOptions<RedisOptions> => endpoint, password, port
-
+        private readonly DynamoDatastore dynamoDatastore;
         private readonly ConnectionMultiplexer redis;
         private readonly IDatabase db;
-        private readonly JsonSerializerOptions option = new ()
+        private readonly JsonSerializerOptions option = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
@@ -24,20 +24,7 @@ namespace Backend.Persistence
             redis = ConnectionMultiplexer.Connect($"{redisOptions.Value.Endpoint}:{redisOptions.Value.Port}");
             db = redis.GetDatabase();
         }
-        
-        public async void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
-        {
-
-            var postScore = await db.SortedSetAddAsync(trackId, userId, time);
-
-            var detailsSelected =  new LeaderboardDetails(userId, carId, skinId);
-
-            var detailsSerialized = JsonSerializer.Serialize(detailsSelected, option);
-
-            var post = await db.StringSetAsync(GetLeaderboardDetailsKey(userId, trackId), detailsSerialized);
-        }
-
-
+        public List<Properties> propList = new List<Properties>();
         public async Task<Leaderboard> GetScores(string trackId)
         {
             var objs = await db.SortedSetRangeByRankWithScoresAsync(trackId);
@@ -47,20 +34,14 @@ namespace Backend.Persistence
             return response;
         }
 
-        public async Task<LeaderboardDetails> GetLeaderboardDetails(string userId, string trackId)
+        public async void SaveLeaderboardDetails(string trackId, string userId, double score, int carId, int skinId)
         {
-            var getdetailsSerialized = await db.StringGetAsync(GetLeaderboardDetailsKey(userId, trackId));
+            Properties properties = new Properties(carId, skinId, score);
+            LeaderboardData leaderboardData = new LeaderboardData(trackId, userId, propList);
 
-            var detailsDeserilized = JsonSerializer.Deserialize<LeaderboardDetails>(getdetailsSerialized);
+            var postPlayerData = dynamoDatastore.Insert(leaderboardData);
 
-            var detailsObj = new LeaderboardDetails(detailsDeserilized.UserId, detailsDeserilized.CarId, detailsDeserilized.SkinId);
-
-            return detailsObj;
-        }
-
-        public string GetLeaderboardDetailsKey(string userId, string trackId)
-        {
-            return userId + ":" + trackId;
+            var postScore = await db.SortedSetAddAsync(trackId, userId, score);
         }
     }
 }

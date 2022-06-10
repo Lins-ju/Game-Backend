@@ -13,7 +13,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<LeaderboardController>();
 builder.Services.AddSingleton<LeaderboardService>();
-builder.Services.AddSingleton<RedisDatastore>();
+builder.Services.AddSingleton<DynamoDatastore>();
 
 builder.Services.Configure<RedisOptions>(
     

@@ -12,6 +12,9 @@ namespace Backend.Domain
             this.Port = port;
         }
 
-        public RedisOptions(){}
+        public RedisOptions()
+        {
+            
+        }
     }
 }

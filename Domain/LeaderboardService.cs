@@ -8,6 +8,7 @@ namespace Backend.Domain
     {
 
         private readonly Persistence.RedisDatastore redisDatastore;
+        private readonly Persistence.DynamoDatastore dynamoDatastore;
         public LeaderboardService(RedisDatastore redisDatastore) {
             this.redisDatastore = redisDatastore;
         }
@@ -15,7 +16,6 @@ namespace Backend.Domain
            public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
             redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
-
         }
 
 
@@ -24,20 +24,20 @@ namespace Backend.Domain
             return await redisDatastore.GetScores(trackId);
         }
 
-        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
+        public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
         {
             // Getting Score
 
             var scoreResponse = await redisDatastore.GetScores(trackId);
+            var leaderboardDetailsResponse = await dynamoDatastore.LeadeboardDataListByTrackId(trackId);
 
-            var response2 = new GetLeaderboardResponse();
-            foreach(var item in scoreResponse.Leaderboards)
-            {
-                var leaderboardDetails = await redisDatastore.GetLeaderboardDetails(item.UserId, trackId);
-                response2.AddLeaderboardRecord(new LeaderboardRecord(item, leaderboardDetails));
-            }
-                
-            return response2;
+            var leaderboardDetailResponse = new GetFullLeaderboard();
+
+            var leaderboard = dynamoDatastore.DisplayFullLeaderboard(scoreResponse, leaderboardDetailsResponse);
+
+            leaderboardDetailResponse.AddLeaderboardDetail(leaderboard);
+
+            return leaderboardDetailResponse;
         }
     }
 }
