@@ -19,9 +19,9 @@ namespace Backend.Controllers
         [Route("save")]
         [HttpPost]
 
-        public void SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
+        public async void SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
         {
-            leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, saveScoreRequest.Score, saveScoreRequest.CarId, saveScoreRequest.SkinId);
+            await leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, saveScoreRequest.Score);
         }
 
 

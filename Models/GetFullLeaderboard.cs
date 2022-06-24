@@ -2,16 +2,21 @@ namespace Backend.Models
 {
     public class GetFullLeaderboard
     {
-        public List<LeaderboardDetail> leaderboardDetails = new List<LeaderboardDetail>();
+        public List<LeaderboardDetail> FullLeaderboard = new List<LeaderboardDetail>();
 
         public GetFullLeaderboard()
         {
-            leaderboardDetails = new List<LeaderboardDetail>();
+            FullLeaderboard = new List<LeaderboardDetail>();
+        }
+
+        public void AddLeaderboardDetail(List<LeaderboardDetail> leaderboardDataNewList)
+        {
+            FullLeaderboard = leaderboardDataNewList;
         }
 
         public void AddLeaderboardDetail(LeaderboardDetail leaderboardDetail)
         {
-            leaderboardDetails.Add(leaderboardDetail);
+            FullLeaderboard.Add(leaderboardDetail);
         }
     }
 }

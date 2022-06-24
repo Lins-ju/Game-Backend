@@ -42,14 +42,15 @@ namespace Backend.Persistence
 
             var retrievedDocuments = new List<Document>();
 
-            do {
+            do
+            {
                 var searchResult = await search.GetNextSetAsync();
-                retrievedDocuments.AddRange(searchResult); 
-            } while (search.IsDone);
+                retrievedDocuments.AddRange(searchResult);
+            } while (!search.IsDone);
 
             List<LeaderboardData> leaderboardData = new List<LeaderboardData>();
 
-            foreach(var item in retrievedDocuments)
+            foreach (var item in retrievedDocuments)
             {
                 var fromDocument = LeaderboardData.FromDocument(item);
                 leaderboardData.Add(fromDocument);
@@ -58,28 +59,23 @@ namespace Backend.Persistence
             return leaderboardData;
         }
 
-        public LeaderboardDetail DisplayFullLeaderboard(Leaderboard leaderboardEntries, List<LeaderboardData> leaderboardDataList)
+        public List<LeaderboardDetail> DisplayFullLeaderboard(Leaderboard leaderboardEntries, List<LeaderboardData> leaderboardDataList)
         {
+            List<LeaderboardDetail> leaderboardDetailList = new List<LeaderboardDetail>();
             LeaderboardDetail leaderboardDetail = new LeaderboardDetail();
-            
-            foreach(var entryItem in leaderboardEntries.Leaderboards)
-            {
-                entryItem.UserId = leaderboardDetail.UserId;
-                entryItem.Score = leaderboardDetail.Score;
-            }
+
             foreach(var dataItem in leaderboardDataList)
             {
-                if(dataItem.UserId == leaderboardDetail.UserId)
+                foreach(var entryItem in leaderboardEntries.Leaderboards)
                 {
-                    foreach(var propertiesItem in dataItem.Properties)
+                    if(entryItem.UserId == dataItem.UserId && !leaderboardDetailList.Contains(new LeaderboardDetail(dataItem, entryItem)))
                     {
-                        leaderboardDetail.CarId = propertiesItem.CarId;
-                        leaderboardDetail.Score = propertiesItem.Score;
+                        leaderboardDetailList.Add(new LeaderboardDetail(dataItem, entryItem));
                     }
                 }
             }
-
-            return leaderboardDetail;
+            return leaderboardDetailList;
         }
+
     }
 }

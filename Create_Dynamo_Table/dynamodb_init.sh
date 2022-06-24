@@ -13,7 +13,7 @@ LOCALSTACK_HOST=localhost
 CLI="aws --endpoint-url=http://${LOCALSTACK_HOST}:8000"
 
 ## change this code to create the table related to your service
-TABLE_NAME="LeaderboardData"
+TABLE_NAME="Leaderboard"
 create_table() {
   ${CLI} dynamodb create-table \
     --table-name ${TABLE_NAME} \

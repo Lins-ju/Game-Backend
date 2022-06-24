@@ -12,5 +12,9 @@ namespace Backend.Models
             SkinId = skinId;
             Score = score;
         }
+        public Properties()
+        {
+
+        }
     }
 }

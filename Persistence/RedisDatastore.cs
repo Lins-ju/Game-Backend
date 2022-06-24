@@ -11,7 +11,7 @@ namespace Backend.Persistence
     {
 
         // constructor com IOptions<RedisOptions> => endpoint, password, port
-        private readonly DynamoDatastore dynamoDatastore;
+        private readonly Persistence.DynamoDatastore _dynamoDatastore;
         private readonly ConnectionMultiplexer redis;
         private readonly IDatabase db;
         private readonly JsonSerializerOptions option = new()
@@ -24,7 +24,12 @@ namespace Backend.Persistence
             redis = ConnectionMultiplexer.Connect($"{redisOptions.Value.Endpoint}:{redisOptions.Value.Port}");
             db = redis.GetDatabase();
         }
-        public List<Properties> propList = new List<Properties>();
+        public async Task<bool> SaveLeaderboard(string trackId, string userId, double score)
+        {
+            var postScore = await db.SortedSetAddAsync(trackId, userId, score);
+
+            return postScore;
+        }
         public async Task<Leaderboard> GetScores(string trackId)
         {
             var objs = await db.SortedSetRangeByRankWithScoresAsync(trackId);
@@ -32,16 +37,6 @@ namespace Backend.Persistence
             var response = new Leaderboard(objs);
 
             return response;
-        }
-
-        public async void SaveLeaderboardDetails(string trackId, string userId, double score, int carId, int skinId)
-        {
-            Properties properties = new Properties(carId, skinId, score);
-            LeaderboardData leaderboardData = new LeaderboardData(trackId, userId, propList);
-
-            var postPlayerData = dynamoDatastore.Insert(leaderboardData);
-
-            var postScore = await db.SortedSetAddAsync(trackId, userId, score);
         }
     }
 }

@@ -24,6 +24,22 @@ namespace Backend.Models
             Score = score;
         }
 
+        public LeaderboardDetail(LeaderboardData leaderboardData)
+        {
+            UserId = leaderboardData.UserId;
+            Score = leaderboardData.Properties.Score; 
+            CarId = leaderboardData.Properties.CarId;
+            SkinId = leaderboardData.Properties.SkinId;
+        }
+
+        public LeaderboardDetail(LeaderboardData leaderboardData, LeaderboardEntry leaderboardEntry)
+        {
+            UserId = leaderboardEntry.UserId;
+            Score = leaderboardEntry.Score; 
+            CarId = leaderboardData.Properties.CarId;
+            SkinId = leaderboardData.Properties.SkinId;
+        }
+
         public LeaderboardDetail()
         {
             
