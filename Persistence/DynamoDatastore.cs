@@ -17,7 +17,7 @@ namespace Backend.Persistence
         public async Task<bool> Insert(LeaderboardData leaderboardData)
         {
             var response = await _table.PutItemAsync(leaderboardData.ToDocument());
-            return response == null;
+            return response != null;
         }
 
         public async Task<LeaderboardData?> GetItem(string partitionKey, string rangeKey)
@@ -64,13 +64,20 @@ namespace Backend.Persistence
             List<LeaderboardDetail> leaderboardDetailList = new List<LeaderboardDetail>();
             LeaderboardDetail leaderboardDetail = new LeaderboardDetail();
 
-            foreach(var dataItem in leaderboardDataList)
+            foreach (var dataItem in leaderboardDataList)
             {
-                foreach(var entryItem in leaderboardEntries.Leaderboards)
+                foreach (var entryItem in leaderboardEntries.Leaderboards)
                 {
-                    if(entryItem.UserId == dataItem.UserId && !leaderboardDetailList.Contains(new LeaderboardDetail(dataItem, entryItem)))
+                    if (entryItem == null)
                     {
-                        leaderboardDetailList.Add(new LeaderboardDetail(dataItem, entryItem));
+                        leaderboardDetailList.Add(new LeaderboardDetail(dataItem));
+                    }
+                    else
+                    {
+                        if (entryItem.UserId == dataItem.UserId && !leaderboardDetailList.Contains(new LeaderboardDetail(dataItem, entryItem)))
+                        {
+                            leaderboardDetailList.Add(new LeaderboardDetail(dataItem, entryItem));
+                        }
                     }
                 }
             }

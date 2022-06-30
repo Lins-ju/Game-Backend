@@ -12,7 +12,7 @@ namespace Backend.Domain
         {
             _redisDatastore = redisDatastore;
             _dynamoDatastore = dynamoDatastore;
-           
+
         }
 
         public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score)
@@ -29,39 +29,13 @@ namespace Backend.Domain
 
         public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
         {
-            // Getting Score
-
             var scoreResponse = await _redisDatastore.GetScores(trackId);
 
             var leaderboardDetailsResponse = await _dynamoDatastore.LeadeboardDataListByTrackId(trackId);
 
             var FullLeaderboard = new GetFullLeaderboard();
 
-            LeaderboardEntry leaderboardEntry = new LeaderboardEntry();
-            Leaderboard leaderboardReconstructed = new Leaderboard();
-
-            if(scoreResponse.Leaderboards.Count == 0)
-            {
-                foreach(var item in leaderboardDetailsResponse)
-                {
-                    leaderboardEntry.UserId = item.UserId;
-                    leaderboardEntry.Score = item.Properties.Score;
-                    leaderboardReconstructed.Leaderboards.Add(leaderboardEntry);
-                }
-            }
-
-            if(scoreResponse.Leaderboards.Count != 0)
-            {
-                foreach(var item in scoreResponse.Leaderboards)
-                {
-                    leaderboardEntry.UserId = item.UserId;
-                    leaderboardEntry.Score = item.Score;
-                    leaderboardReconstructed.Leaderboards.Add(leaderboardEntry);
-                }
-            }
-
-
-            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(leaderboardReconstructed, leaderboardDetailsResponse);
+            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(scoreResponse, leaderboardDetailsResponse);
 
             FullLeaderboard.AddLeaderboardDetail(leaderboard);
 

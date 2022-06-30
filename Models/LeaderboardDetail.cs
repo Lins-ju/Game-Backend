@@ -27,7 +27,7 @@ namespace Backend.Models
         public LeaderboardDetail(LeaderboardData leaderboardData)
         {
             UserId = leaderboardData.UserId;
-            Score = leaderboardData.Properties.Score; 
+            Score = leaderboardData.Properties.Score;
             CarId = leaderboardData.Properties.CarId;
             SkinId = leaderboardData.Properties.SkinId;
         }
@@ -35,14 +35,14 @@ namespace Backend.Models
         public LeaderboardDetail(LeaderboardData leaderboardData, LeaderboardEntry leaderboardEntry)
         {
             UserId = leaderboardEntry.UserId;
-            Score = leaderboardEntry.Score; 
+            Score = leaderboardEntry.Score;
             CarId = leaderboardData.Properties.CarId;
             SkinId = leaderboardData.Properties.SkinId;
         }
 
         public LeaderboardDetail()
         {
-            
+
         }
     }
 }
