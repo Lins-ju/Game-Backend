@@ -8,11 +8,12 @@ namespace Backend.Domain
 
         private readonly Persistence.RedisDatastore _redisDatastore;
         private readonly Persistence.DynamoDatastore _dynamoDatastore;
-        public LeaderboardService(RedisDatastore redisDatastore, DynamoDatastore dynamoDatastore)
+        private readonly Persistence.S3Datastore _s3Datastore;
+        public LeaderboardService(RedisDatastore redisDatastore, DynamoDatastore dynamoDatastore, S3Datastore s3Datastore)
         {
             _redisDatastore = redisDatastore;
             _dynamoDatastore = dynamoDatastore;
-
+            _s3Datastore = s3Datastore;
         }
 
         public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score)
@@ -40,6 +41,12 @@ namespace Backend.Domain
             FullLeaderboard.AddLeaderboardDetail(leaderboard);
 
             return FullLeaderboard;
+        }
+
+        public async Task<string> PostPlayerConfig(int carId, int skinId)
+        {
+            var response = await _s3Datastore.PostPlayerConfig(carId, skinId);
+            return response;
         }
     }
 }
