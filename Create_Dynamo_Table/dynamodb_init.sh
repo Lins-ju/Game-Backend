@@ -10,7 +10,7 @@ echo "==================="
 
 # https://gugsrs.com/localstack-sqs-sns/
 LOCALSTACK_HOST=localhost
-CLI="aws --endpoint-url=http://${LOCALSTACK_HOST}:8000"
+CLI="aws --endpoint-url=http://${LOCALSTACK_HOST}:4566"
 
 ## change this code to create the table related to your service
 TABLE_NAME="Leaderboard"

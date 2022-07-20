@@ -2,6 +2,7 @@ using System.Text.Json;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Backend.Models;
+using Backend.Models.S3;
 
 namespace Backend.Persistence
 {
@@ -25,12 +26,37 @@ namespace Backend.Persistence
         {
             string objectKey = guid.ToString();
             PlayerConfig playerConfig = new PlayerConfig(carId, skinId);
-            string PlayerConfigSerialized = JsonSerializer.Serialize(playerConfig, options);
+            string playerConfigSerialized = JsonSerializer.Serialize(playerConfig, options);
             var putObject = new PutObjectRequest
             {
                 BucketName = bucketParameter,
                 Key = objectKey,
-                ContentBody = PlayerConfigSerialized,
+                ContentBody = playerConfigSerialized,
+                ContentType = "application/json"
+            };
+
+            var response = await _s3Buckets.PutObjectAsync(putObject);
+            if(response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return $"Object Key is {objectKey}";
+            }
+            else
+            {
+                return "Object not posted";
+            }
+
+        }
+
+        public async Task<string> PostCarConfig(int carId, string carName, int maxSpeed, CarType carType)
+        {
+            string objectKey = guid.ToString();
+            CarConfig carConfig = new CarConfig(carId, carName, maxSpeed, carType);
+            string carConfigSerialized = JsonSerializer.Serialize(carConfig, options);
+            var putObject = new PutObjectRequest
+            {
+                BucketName = bucketParameter,
+                Key = objectKey,
+                ContentBody = carConfigSerialized,
                 ContentType = "application/json"
             };
 
