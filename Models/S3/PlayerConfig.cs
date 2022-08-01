@@ -1,3 +1,5 @@
+using Backend.Models.S3;
+
 namespace Backend.Models
 {
     public class PlayerConfig
