@@ -13,10 +13,5 @@ namespace Backend.Models
                 Leaderboards.Add(new LeaderboardEntry(obj));
             }
         }
-
-        public Leaderboard()
-        {
-            
-        }
     }
 }

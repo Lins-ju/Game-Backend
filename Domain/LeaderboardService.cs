@@ -1,71 +1,43 @@
 using Backend.Models;
 using Backend.Persistence;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Domain
 {
     public class LeaderboardService
     {
 
-        private readonly Persistence.RedisDatastore _redisDatastore;
-        private readonly Persistence.DynamoDatastore _dynamoDatastore;
-        public LeaderboardService(RedisDatastore redisDatastore, DynamoDatastore dynamoDatastore)
-        {
-            _redisDatastore = redisDatastore;
-            _dynamoDatastore = dynamoDatastore;
-           
+        private readonly Persistence.RedisDatastore redisDatastore;
+        public LeaderboardService(RedisDatastore redisDatastore) {
+            this.redisDatastore = redisDatastore;
         }
-
-        public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score)
+        
+           public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
-            var result = await _redisDatastore.SaveLeaderboard(trackId, userId, score);
-            return result;
+            redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
+
         }
 
 
         public async Task<Leaderboard> GetScores(string trackId)
         {
-            return await _redisDatastore.GetScores(trackId);
+            return await redisDatastore.GetScores(trackId);
         }
 
-        public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
+        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
         {
             // Getting Score
 
-            var scoreResponse = await _redisDatastore.GetScores(trackId);
+            var scoreResponse = await redisDatastore.GetScores(trackId);
 
-            var leaderboardDetailsResponse = await _dynamoDatastore.LeadeboardDataListByTrackId(trackId);
-
-            var FullLeaderboard = new GetFullLeaderboard();
-
-            LeaderboardEntry leaderboardEntry = new LeaderboardEntry();
-            Leaderboard leaderboardReconstructed = new Leaderboard();
-
-            if(scoreResponse.Leaderboards.Count == 0)
+            var response2 = new GetLeaderboardResponse();
+            foreach(var item in scoreResponse.Leaderboards)
             {
-                foreach(var item in leaderboardDetailsResponse)
-                {
-                    leaderboardEntry.UserId = item.UserId;
-                    leaderboardEntry.Score = item.Properties.Score;
-                    leaderboardReconstructed.Leaderboards.Add(leaderboardEntry);
-                }
+                var leaderboardDetails = await redisDatastore.GetLeaderboardDetails(item.UserId, trackId);
+                response2.AddLeaderboardRecord(new LeaderboardRecord(item, leaderboardDetails));
             }
-
-            if(scoreResponse.Leaderboards.Count != 0)
-            {
-                foreach(var item in scoreResponse.Leaderboards)
-                {
-                    leaderboardEntry.UserId = item.UserId;
-                    leaderboardEntry.Score = item.Score;
-                    leaderboardReconstructed.Leaderboards.Add(leaderboardEntry);
-                }
-            }
-
-
-            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(leaderboardReconstructed, leaderboardDetailsResponse);
-
-            FullLeaderboard.AddLeaderboardDetail(leaderboard);
-
-            return FullLeaderboard;
+                
+            return response2;
         }
     }
 }
