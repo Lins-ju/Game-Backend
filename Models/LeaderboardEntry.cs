@@ -16,5 +16,10 @@ namespace Backend.Models
             this.UserId = sortedSet.Element;
             this.Score = sortedSet.Score;
         }
+
+        public LeaderboardEntry()
+        {
+            
+        }
     }
 }
