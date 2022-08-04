@@ -7,7 +7,7 @@ namespace Backend.Domain
         public string TableName { get; set; }
 
         public string ServiceURL { get; set; }
-        
+
         public bool LocalMode { get; set; }
     }
 }
