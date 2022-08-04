@@ -29,10 +29,8 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 .idea/
-obj/
-obj/Debug/net6.0/backend.assets.cache
-obj/Debug/net6.0/project.razor.json
-bin/
+bin
+obj
 *.DotSettings.user
 /publish/
 

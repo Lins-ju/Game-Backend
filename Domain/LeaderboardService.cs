@@ -1,5 +1,6 @@
 using Backend.Models;
 using Backend.Persistence;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Domain
 {
@@ -15,11 +16,11 @@ namespace Backend.Domain
             _dynamoDatastore = dynamoDatastore;
             _s3Datastore = s3Datastore;
         }
-
-        public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score)
+        
+           public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
         {
-            var result = await _redisDatastore.SaveLeaderboard(trackId, userId, score);
-            return result;
+            _redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
+
         }
 
 
@@ -28,7 +29,7 @@ namespace Backend.Domain
             return await _redisDatastore.GetScores(trackId);
         }
 
-        public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
+        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
         {
             var scoreResponse = await _redisDatastore.GetScores(trackId);
 
