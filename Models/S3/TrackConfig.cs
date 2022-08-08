@@ -3,16 +3,16 @@ namespace Backend.Models.S3
     public class TrackConfig
     {
         public string TrackId { get; set; }
-        public string TrackImgId { get; set; }
+        public string TrackImgUrl { get; set; }
 
-        public TrackConfig(string trackId, string trackImgId)
+        public TrackConfig(string trackId, string trackImgUrl)
         {
             TrackId = trackId;
-            TrackImgId = trackImgId;
+            TrackImgUrl = trackImgUrl;
         }
         public TrackConfig()
         {
-
+            
         }
     }
 }

@@ -1,8 +1,7 @@
 namespace Backend.Models.S3
 {
-    public class CarConfig
+    public class CarConfig : AbstractConfig
     {
-        public int CarId { get; set; }
         public string CarName { get; set; }
         public int MaxSpeed { get; set; }
         public CarType CarType { get; set; }
@@ -17,7 +16,7 @@ namespace Backend.Models.S3
 
         public CarConfig()
         {
-
+            
         }
     }
 }

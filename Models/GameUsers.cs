@@ -1,6 +1,5 @@
-using System.Text.Json;
 
-namespace Backend.Models.S3
+namespace Backend.Models
 {
     public class GameUsers
     {

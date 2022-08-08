@@ -16,7 +16,7 @@ namespace Backend.Persistence
 
         public async Task<bool> Insert(LeaderboardData leaderboardData)
         {
-            var response = await _table.PutItemAsync(leaderboardData.ToDocument());
+            var response = await _table.PutItemAsync(LeaderboardData.ToDocument(leaderboardData));
             return response != null;
         }
 

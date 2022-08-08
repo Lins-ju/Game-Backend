@@ -17,22 +17,16 @@ namespace Backend.Models
 
         public LeaderboardData()
         {
-            
+
         }
 
-        public Document ToDocument()
+        public static Document ToDocument(LeaderboardData leaderboardData)
         {
-
-            var propertiesDocument = new Document
-            {
-                ["CarId"] = this.Properties.CarId,
-                ["SkinId"] = this.Properties.SkinId,
-                ["Score"] = this.Properties.Score
-            };
+            var propertiesDocument = Properties.ToDocument(leaderboardData.Properties);
             var document = new Document
             {
-                ["TrackId"] = this.TrackId,
-                ["UserId"] = this.UserId,
+                ["TrackId"] = leaderboardData.TrackId,
+                ["UserId"] = leaderboardData.UserId,
                 ["Properties"] = propertiesDocument
             };
 
@@ -41,14 +35,7 @@ namespace Backend.Models
 
         public static LeaderboardData FromDocument(Document document)
         {
-            var dynamoEntryDocument = document["Properties"].AsDocument();
-            var carId = (int)dynamoEntryDocument["CarId"];
-            var skinId = (int)dynamoEntryDocument["SkinId"];
-            var score = (double)dynamoEntryDocument["Score"];
-
-            Properties properties = new Properties(carId, skinId, score);
-
-
+            var properties = Properties.FromDocument(document);
             var Data = new LeaderboardData(document["TrackId"], document["UserId"], properties);
             return Data;
         }
