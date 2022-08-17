@@ -29,10 +29,10 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 .idea/
+obj
+bin
+*.DotSettings.user
+/publish/
 
 # Visual Studio 2015
-<<<<<<< HEAD
 .vs/
-=======
-.vs/
->>>>>>> main

@@ -7,37 +7,47 @@ namespace Backend.Domain
     public class LeaderboardService
     {
 
-        private readonly Persistence.RedisDatastore redisDatastore;
-        public LeaderboardService(RedisDatastore redisDatastore) {
-            this.redisDatastore = redisDatastore;
-        }
-        
-           public void SaveLeaderboardDetails(string trackId, string userId, double time, int carId, int skinId)
+        private readonly Persistence.RedisDatastore _redisDatastore;
+        private readonly Persistence.DynamoDatastore _dynamoDatastore;
+        private readonly Persistence.S3Datastore _s3Datastore;
+        public LeaderboardService(RedisDatastore redisDatastore, DynamoDatastore dynamoDatastore, S3Datastore s3Datastore)
         {
-            redisDatastore.SaveLeaderboardDetails(trackId, userId, time, carId, skinId);
+            _redisDatastore = redisDatastore;
+            _dynamoDatastore = dynamoDatastore;
+            _s3Datastore = s3Datastore;
+        }
 
+        public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score)
+        {
+            var result = await _redisDatastore.SaveLeaderboard(trackId, userId, score);
+            return result;
         }
 
 
         public async Task<Leaderboard> GetScores(string trackId)
         {
-            return await redisDatastore.GetScores(trackId);
+            return await _redisDatastore.GetScores(trackId);
         }
 
-        public async Task<GetLeaderboardResponse> GetLeaderboardRecords(string trackId)
+        public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
         {
-            // Getting Score
+            var scoreResponse = await _redisDatastore.GetScores(trackId);
 
-            var scoreResponse = await redisDatastore.GetScores(trackId);
+            var leaderboardDetailsResponse = await _dynamoDatastore.LeadeboardDataListByTrackId(trackId);
 
-            var response2 = new GetLeaderboardResponse();
-            foreach(var item in scoreResponse.Leaderboards)
-            {
-                var leaderboardDetails = await redisDatastore.GetLeaderboardDetails(item.UserId, trackId);
-                response2.AddLeaderboardRecord(new LeaderboardRecord(item, leaderboardDetails));
-            }
-                
-            return response2;
+            var FullLeaderboard = new GetFullLeaderboard();
+
+            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(scoreResponse, leaderboardDetailsResponse);
+
+            FullLeaderboard.AddLeaderboardDetail(leaderboard);
+
+            return FullLeaderboard;
+        }
+
+        public async Task<string> PostPlayerConfig(int carId, int skinId)
+        {
+            var response = await _s3Datastore.PostPlayerConfig(carId, skinId);
+            return response;
         }
     }
 }
