@@ -1,8 +1,48 @@
 
+using System.Text.Json;
+using Amazon.DynamoDBv2.DocumentModel;
+using Backend.Models.S3;
+
 namespace Backend.Models
 {
-    public class GameUsers
+    public class GameUser
     {
-        
+        public int Id { get; set; }
+        public string UserName { get; set; }
+        public CarCollectionList CarCollectionList { get; set; }
+
+        public GameUser()
+        {
+            
+        }
+
+        public GameUser(int id, string userName, CarCollectionList carCollectionList)
+        {
+            Id = id;
+            UserName = userName;
+            CarCollectionList = carCollectionList;
+        }
+
+        public static Document ToDocument(GameUser gameUser)
+        {
+            var carCollection = CarCollectionList.ListToDocument(gameUser.CarCollectionList);
+            var document = new Document
+            {
+                ["Id"] = gameUser.Id,
+                ["UserName"] = gameUser.UserName,
+                ["CarCollectionList"] = carCollection
+            };
+
+            return document;
+        }
+
+        public static GameUser FromDocument(Document document)
+        {
+            var carCollectionList = CarCollectionList.FromDocumentToList(document["CarCollectionList"].AsListOfDocument());
+            var id = (int)document["Id"];
+            var userName = (string)document["UserName"];
+
+            return new GameUser(id, userName, carCollectionList);
+        }
     }
 }

@@ -2,6 +2,7 @@ namespace Backend.Models.S3
 {
     public abstract class AbstractConfig
     {
-        public int CarId { get; set; }
+        public int Id { get; set; }
+        public string Type { get; set; }
     }
 }

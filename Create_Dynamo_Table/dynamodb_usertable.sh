@@ -7,19 +7,19 @@ set -euo pipefail
 
 echo "configuring dynamodb"
 echo "==================="
-echo "Leaderboard Table being created..."
+echo "Users Table being created..."
 
 # https://gugsrs.com/localstack-sqs-sns/
 LOCALSTACK_HOST=localhost
 CLI="aws --endpoint-url=http://${LOCALSTACK_HOST}:4566"
 
 ## change this code to create the table related to your service
-TABLE_NAME="Leaderboard"
+TABLE_NAME="Users"
 create_table() {
   ${CLI} dynamodb create-table \
     --table-name ${TABLE_NAME} \
-    --attribute-definitions AttributeName=TrackId,AttributeType=S AttributeName=UserId,AttributeType=S \
-    --key-schema AttributeName=TrackId,KeyType=HASH AttributeName=UserId,KeyType=RANGE  \
+    --attribute-definitions AttributeName=Id,AttributeType=N AttributeName=UserName,AttributeType=S \
+    --key-schema AttributeName=Id,KeyType=HASH AttributeName=UserName,KeyType=RANGE  \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
 }
 

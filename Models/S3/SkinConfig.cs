@@ -1,13 +1,14 @@
 namespace Backend.Models.S3
 {
-    public class SkinConfig
+    public class SkinConfig : AbstractConfig
     {
-        public string SkinColor { get; set; }
+        public string SkinImgUrl { get; set; }
         public CarPaintType CarType { get; set; }
 
-        public SkinConfig(string skinColor, CarPaintType carType)
+        public SkinConfig(int id, CarPaintType carType)
         {
-            SkinColor = skinColor;
+            Type = "skin";
+            Id = id;
             CarType = carType;
         }
         public SkinConfig()

@@ -4,16 +4,13 @@ namespace Backend.Models
 {
     public class PlayerConfig : AbstractConfig
     {
-        public int SkinId { get; set; }
+        public string UserImgUrl { get; set; }
 
-        public PlayerConfig(int carId, int skinId)
+        public PlayerConfig(int id, string userImgUrl)
         {
-            CarId = carId;
-            SkinId = skinId;
-        }
-        public PlayerConfig()
-        {
-
+            Type = "player";
+            Id = id;
+            UserImgUrl = userImgUrl;
         }
     }
 }
