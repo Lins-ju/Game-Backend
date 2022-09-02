@@ -1,20 +1,20 @@
 namespace Backend.Models.S3
 {
-    public class GetCarConfig : AbstractConfig
+    public class RequestCarConfig : AbstractConfig
     {
         public string CarName { get; set; }
         public int MaxSpeed { get; set; }
         public CarType CarType { get; set; }
         public IFormFile CarImg { get; set; }
 
-        public GetCarConfig(string carName, int maxSpeed, IFormFile carImg)
+        public RequestCarConfig(string carName, int maxSpeed, IFormFile carImg)
         {
             CarName = carName;
             MaxSpeed = maxSpeed;
             CarImg = carImg;
         }
 
-        public GetCarConfig(int id, string carName, int maxSpeed, CarType carType, IFormFile carImg)
+        public RequestCarConfig(int id, string carName, int maxSpeed, CarType carType, IFormFile carImg)
         {
             Id = id;
             CarName = carName;
@@ -22,7 +22,7 @@ namespace Backend.Models.S3
             CarType = carType;
             CarImg = carImg;
         }
-        public GetCarConfig(CarConfig carConfig, IFormFile carImg)
+        public RequestCarConfig(CarConfig carConfig, IFormFile carImg)
         {
             Id = carConfig.Id;
             CarName = carConfig.CarName;
@@ -31,7 +31,7 @@ namespace Backend.Models.S3
             CarImg = carImg;
         }
 
-        public GetCarConfig(GetCarConfig cars)
+        public RequestCarConfig(RequestCarConfig cars)
         {
             CarName = cars.CarName;
             MaxSpeed = cars.MaxSpeed;
@@ -39,7 +39,7 @@ namespace Backend.Models.S3
             CarImg = cars.CarImg;
         }
 
-        public GetCarConfig()
+        public RequestCarConfig()
         {
 
         }

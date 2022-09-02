@@ -6,7 +6,7 @@ using StackExchange.Redis;
 
 namespace Backend.Controllers
 {
-    [Route("api/leaderboard")]
+    [Route("api/gameview")]
     public class LeaderboardController : ControllerBase
     {
         private readonly LeaderboardService leaderboardService;
@@ -15,25 +15,6 @@ namespace Backend.Controllers
         {
             this.leaderboardService = leaderboardService;
         }
-
-
-        [Route("saveleaderboards")]
-        [HttpPost]
-
-        public async void SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
-        {
-            await leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, saveScoreRequest.Score,
-            saveScoreRequest.CarId, saveScoreRequest.SkinId);
-        }
-
-        [Route("saveuser")]
-        [HttpPost]
-
-        public async void SaveUser()
-        {
-            
-        }
-
 
         [Route("getleaderboards")]
         [HttpGet]
@@ -46,29 +27,20 @@ namespace Backend.Controllers
             return bindedResult;
         }
 
-        [Route("getcars")]
+        [Route("getcarsAvailable")]
         [HttpGet]
 
-        public async Task<List<GetCarConfig>> GetCarsAvailable(ObjectKey objectKey)
+        public async Task<List<RequestCarConfig>> GetCarsAvailable()
         {
             var result = await leaderboardService.GetCarsAvailable();
             if (result.Count == 0)
             {
-                return null;
+                return new List<RequestCarConfig>();
             }
             else
             {
                 return result;
             }
-        }
-
-        [Route("getcarcollection")]
-        [HttpGet]
-
-        public async Task<List<GetCarConfig>> GetCarConfigByPlayer(int playerId)
-        {
-            var response = await leaderboardService.GetCarsAvailableByPlayer(playerId);
-            return response;
         }
     }
 }

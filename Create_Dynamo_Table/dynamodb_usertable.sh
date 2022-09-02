@@ -18,8 +18,8 @@ TABLE_NAME="Users"
 create_table() {
   ${CLI} dynamodb create-table \
     --table-name ${TABLE_NAME} \
-    --attribute-definitions AttributeName=Id,AttributeType=N AttributeName=UserName,AttributeType=S \
-    --key-schema AttributeName=Id,KeyType=HASH AttributeName=UserName,KeyType=RANGE  \
+    --attribute-definitions AttributeName=UserName,AttributeType=S AttributeName=Id,AttributeType=N \
+    --key-schema AttributeName=UserName,KeyType=HASH AttributeName=Id,KeyType=RANGE  \
     --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
 }
 

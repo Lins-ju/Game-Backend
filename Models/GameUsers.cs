@@ -1,5 +1,6 @@
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Amazon.DynamoDBv2.DocumentModel;
 using Backend.Models.S3;
 
@@ -7,8 +8,13 @@ namespace Backend.Models
 {
     public class GameUser
     {
+        [JsonPropertyName("id")]
         public int Id { get; set; }
+
+        [JsonPropertyName("userName")]
         public string UserName { get; set; }
+
+        [JsonPropertyName("carCollectionList")]
         public CarCollectionList CarCollectionList { get; set; }
 
         public GameUser()

@@ -92,9 +92,9 @@ namespace Backend.Persistence
             return result != null;
         }
 
-        public async Task<GameUser> GetGameUserInfo(int playerId)
+        public async Task<GameUser> GetGameUserInfo(string userName)
         {
-            var gameUserDocument = await _table.GetItemAsync(playerId);
+            var gameUserDocument = await _table.GetItemAsync(userName);
             var gameUser = GameUser.FromDocument(gameUserDocument);
             return gameUser;
         }

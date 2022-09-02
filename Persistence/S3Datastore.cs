@@ -122,35 +122,59 @@ namespace Backend.Persistence
             return filePath;
         }
 
-        private async Task<List<string>> ListCars()
+        private async Task<List<string>> ListAllObjects(string prefix)
         {
             ListObjectsRequest listRequest = new ListObjectsRequest
             {
                 BucketName = bucketParameter,
-                Prefix = "cars/",
+                Prefix = prefix + "/",
                 Delimiter = "/"
             };
 
             ListObjectsResponse listResponse;
-            List<string> carObjectKeyList = new List<string>();
+            List<string> objectKeyList = new List<string>();
 
             do
             {
                 listResponse = await _s3Buckets.ListObjectsAsync(listRequest);
                 foreach (S3Object obj in listResponse.S3Objects)
                 {
-                    carObjectKeyList.Add(obj.Key);
+                    objectKeyList.Add(obj.Key);
                 }
 
                 listRequest.Marker = listResponse.NextMarker;
             } while (listResponse.IsTruncated);
 
-            return carObjectKeyList;
+            return objectKeyList;
         }
-        public async Task<string> PostPlayerConfig(int id, IFormFile imgFile)
+
+        private async Task<List<string>> ListAllObjects()
+        {
+            ListObjectsRequest listRequest = new ListObjectsRequest
+            {
+                BucketName = bucketParameter
+            };
+
+            ListObjectsResponse listResponse;
+            List<string> objectKeyList = new List<string>();
+
+            do
+            {
+                listResponse = await _s3Buckets.ListObjectsAsync(listRequest);
+                foreach (S3Object obj in listResponse.S3Objects)
+                {
+                    objectKeyList.Add(obj.Key);
+                }
+
+                listRequest.Marker = listResponse.NextMarker;
+            } while (listResponse.IsTruncated);
+
+            return objectKeyList;
+        }
+        public async Task<bool> SaveUserProfileImg(int id, IFormFile imgFile)
         {
             var putImgObject = ObjectPostImage(imgFile);
-            PlayerConfig playerConfig = new PlayerConfig(id, putImgObject.Key);
+            UserProfileImg playerConfig = new UserProfileImg(id, putImgObject.Key);
             string playerConfigSerialized = JsonSerializer.Serialize(playerConfig, options);
 
             var putObject = ObjectPostJson(playerConfigSerialized);
@@ -158,20 +182,21 @@ namespace Backend.Persistence
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
-                return $"{objectKey}";
+                return true;
             }
             else
             {
-                return "Object not posted";
+                return false;
             }
 
         }
 
-        public async Task<string> PostCarConfig(int carId, string carName, int maxSpeed, CarType carType, IFormFile carImgUrl)
+        public async Task<bool> SaveCarConfig(string carName, int maxSpeed, CarType carType, IFormFile carImgUrl)
         {
             var putImgObject = ObjectPostImage(carImgUrl);
+            SkinConfig skinConfig = new SkinConfig(RandomNum(), putImgObject.Key);
 
-            CarConfig carConfig = new CarConfig(carId, carName, maxSpeed, carType, putImgObject.Key);
+            CarConfig carConfig = new CarConfig(RandomNum(), carName, maxSpeed, carType, skinConfig.Id);
             string carConfigSerialized = JsonSerializer.Serialize(carConfig, options);
 
             var putObject = ObjectPostJson(carConfigSerialized, "cars");
@@ -181,19 +206,19 @@ namespace Backend.Persistence
 
             if (response.HttpStatusCode == HttpStatusCode.OK && imgResponse.HttpStatusCode == HttpStatusCode.OK)
             {
-                return $"{objectKey}";
+                return true;
             }
             if (response.HttpStatusCode != HttpStatusCode.OK && imgResponse.HttpStatusCode != HttpStatusCode.OK)
             {
-                return "Object and image not posted";
+                return true;
             }
             else
             {
-                return "Object or image not posted";
+                return false;
             }
         }
 
-        public async Task<string> PostTrackConfig(string trackName)
+        public async Task<bool> SaveTrackConfig(string trackName)
         {
             TrackConfig trackConfig = new TrackConfig(RandomNum(), trackName);
             string trackConfigSerialized = JsonSerializer.Serialize(trackConfig, options);
@@ -204,37 +229,37 @@ namespace Backend.Persistence
 
             if (response.HttpStatusCode == HttpStatusCode.OK)
             {
-                return $"{objectKey}";
+                return true;
             }
             else
             {
-                return "Object not posted";
+                return false;
             }
         }
 
-        public async Task<string> PostSkinConfig(int carSkinType)
+        public async Task<bool> SaveSkinConfig(string skinImgUrl)
         {
-            SkinConfig skinConfig = new SkinConfig(RandomNum(), (CarPaintType)carSkinType);
+            SkinConfig skinConfig = new SkinConfig(RandomNum(), skinImgUrl);
             string trackConfigSerialized = JsonSerializer.Serialize(skinConfig, options);
 
-            var putObject = ObjectPostJson(trackConfigSerialized);
+            var putObject = ObjectPostJson(trackConfigSerialized, "skin");
 
             var response = await _s3Buckets.PutObjectAsync(putObject);
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
-                return $"{objectKey}";
+                return true;
             }
             else
             {
-                return "Object not posted";
+                return false;
             }
         }
 
-        public async Task<PlayerConfig> GetPlayerConfig(string objectKey)
+        public async Task<UserProfileImg> GetUserProfileImg(string objectKey)
         {
             var fileContent = await GetFileSerialized(objectKey);
-            var playerConfigDeserialized = JsonSerializer.Deserialize<PlayerConfig>(fileContent, options);
+            var playerConfigDeserialized = JsonSerializer.Deserialize<UserProfileImg>(fileContent, options);
 
             if (playerConfigDeserialized != null)
             {
@@ -261,16 +286,14 @@ namespace Backend.Persistence
                 return null;
             }
         }
-        public async Task<GetCarConfig> GetCarConfig(string objectKey)
+        public async Task<RequestCarConfig> GetCarConfig(string objectKey)
         {
             var fileContent = await GetFileSerialized(objectKey);
             var carConfigDeserialized = JsonSerializer.Deserialize<CarConfig>(fileContent, options);
-            var carImg = await _s3Buckets.GetObjectAsync(bucketParameter, carConfigDeserialized.CarImgUrl);
+            var skinId = await GetSkinConfigBySkinId(carConfigDeserialized.SkinId);
+            var carImg = await ObjectGetImageByKey(skinId.SkinImgUrl);
 
-            string filePath = TransformToImageAndSave(carImg);
-            var carImgFormFile = ImageToIFormFile(filePath);
-
-            GetCarConfig getCarConfig = new GetCarConfig(carConfigDeserialized, carImgFormFile);
+            RequestCarConfig getCarConfig = new RequestCarConfig(carConfigDeserialized, carImg);
 
             if (carConfigDeserialized != null)
             {
@@ -326,10 +349,10 @@ namespace Backend.Persistence
             return carConfigList;
         }
 
-        public async Task<List<GetCarConfig>> GetCarConfigListByCarId(CarCollectionList carCollectionList)
+        public async Task<List<RequestCarConfig>> GetCarConfigListByCarId(CarCollectionList carCollectionList)
         {
-            List<GetCarConfig> carConfigList = new List<GetCarConfig>();
-            var getCarsAvailable = await ListCars();
+            List<RequestCarConfig> carConfigList = new List<RequestCarConfig>();
+            var getCarsAvailable = await ListAllObjects("cars");
             foreach(var objectKey in getCarsAvailable)
             {
                 foreach(var carCollectionItem in carCollectionList.carCollectionList)
@@ -343,6 +366,47 @@ namespace Backend.Persistence
             }
 
             return carConfigList;
+        }
+
+        public async Task<SkinConfig> GetSkinConfigBySkinId(int skinId)
+        {
+            SkinConfig skin = new SkinConfig();
+            var getSkin = await ListAllObjects("skin");
+            foreach(var objectKey in getSkin)
+            {
+                var skinConfigFromObject = await GetSkinConfig(objectKey);
+                if(skinConfigFromObject.Id == skinId)
+                {
+                    skin = skinConfigFromObject;
+                }
+            }
+            
+            return skin;
+        }
+
+        public async Task<UserProfileImg> GetUserProfileImgById(int playerId)
+        {
+            UserProfileImg playerConfig = new UserProfileImg();
+            var fileList = await ListAllObjects();
+            foreach(var objectKey in fileList)
+            {
+                var objectFromS3 = await GetFileSerialized(objectKey);
+                var json = JsonDocument.Parse(objectFromS3);
+                var jsonElement = json.RootElement;
+                var typeOf = jsonElement.GetProperty("type").GetString();
+                var rawText = jsonElement.GetRawText();
+                if(typeOf == "player")
+                {
+                    var playerDeserialized = JsonSerializer.Deserialize<UserProfileImg>(rawText, options);
+                    if(playerDeserialized.Id == playerId)
+                    {
+                        playerConfig.Id = playerDeserialized.Id;
+                        playerConfig.UserImgUrl = playerDeserialized.UserImgUrl;
+                    }
+                }
+            }
+
+            return playerConfig;
         }
     }
 }
