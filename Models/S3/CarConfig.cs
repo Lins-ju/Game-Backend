@@ -5,18 +5,20 @@ namespace Backend.Models.S3
         public string CarName { get; set; }
         public int MaxSpeed { get; set; }
         public CarType CarType { get; set; }
-
-        public CarConfig(int carId, string carName, int maxSpeed, CarType carType)
+        public int SkinId { get; set; }
+        public CarConfig(int id, string carName, int maxSpeed, CarType carType, int skinId)
         {
-            CarId = carId;
+            Type = "car";
+            Id = id;
             CarName = carName;
             MaxSpeed = maxSpeed;
             CarType = carType;
+            SkinId = skinId;
         }
 
         public CarConfig()
         {
-            
+
         }
     }
 }

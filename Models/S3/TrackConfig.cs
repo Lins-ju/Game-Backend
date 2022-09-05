@@ -1,14 +1,13 @@
 namespace Backend.Models.S3
 {
-    public class TrackConfig
+    public class TrackConfig : AbstractConfig
     {
-        public string TrackId { get; set; }
-        public string TrackImgUrl { get; set; }
-
-        public TrackConfig(string trackId, string trackImgUrl)
+        public string TrackName { get; set; }
+        public TrackConfig(int id, string trackName)
         {
-            TrackId = trackId;
-            TrackImgUrl = trackImgUrl;
+            Type = "track";
+            Id = id;
+            TrackName = trackName;
         }
         public TrackConfig()
         {

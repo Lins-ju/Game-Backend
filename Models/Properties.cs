@@ -7,7 +7,6 @@ namespace Backend.Models
         public int CarId { get; set; }
         public int SkinId { get; set; }
         public double Score { get; set; }
-
         public Properties(int carId, int skinId, double score)
         {
             CarId = carId;
@@ -38,9 +37,7 @@ namespace Backend.Models
             var skinId = (int)dynamoEntryDocument["SkinId"];
             var score = (double)dynamoEntryDocument["Score"];
 
-            Properties properties = new Properties(carId, skinId, score);
-
-            return properties;
+            return new Properties(carId, skinId, score);
         }
     }
 }

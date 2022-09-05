@@ -3,6 +3,8 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Backend.Domain;
 using Backend.Models;
 using Microsoft.Extensions.Options;
+using Amazon.CloudFront;
+using Backend.Models.S3;
 
 namespace Backend.Persistence
 {
@@ -84,5 +86,17 @@ namespace Backend.Persistence
             return leaderboardDetailList;
         }
 
+        public async Task<bool> InsertUser(int id, string userName, CarCollectionList carCollection)
+        {
+            var result = await _table.PutItemAsync(GameUser.ToDocument(new GameUser(id, userName, carCollection)));
+            return result != null;
+        }
+
+        public async Task<GameUser> GetGameUserInfo(string userName)
+        {
+            var gameUserDocument = await _table.GetItemAsync(userName);
+            var gameUser = GameUser.FromDocument(gameUserDocument);
+            return gameUser;
+        }
     }
 }
