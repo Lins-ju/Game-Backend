@@ -31,12 +31,12 @@ namespace Backend.Models.S3
             CarImg = carImg;
         }
 
-        public RequestCarConfig(RequestCarConfig cars)
+        public RequestCarConfig(RequestCarConfig carConfig)
         {
-            CarName = cars.CarName;
-            MaxSpeed = cars.MaxSpeed;
-            CarType = cars.CarType;
-            CarImg = cars.CarImg;
+            CarName = carConfig.CarName;
+            MaxSpeed = carConfig.MaxSpeed;
+            CarType = carConfig.CarType;
+            CarImg = carConfig.CarImg;
         }
 
         public RequestCarConfig()

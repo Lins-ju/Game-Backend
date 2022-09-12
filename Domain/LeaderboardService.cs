@@ -71,8 +71,8 @@ namespace Backend.Domain
             var carCollectionList = dynamoResponse.CarCollectionList.carCollectionList;
             foreach (var item in carCollectionList)
             {
-                var s3Response = await _s3Datastore.GetCarConfigListByCarId(dynamoResponse.CarCollectionList);
-                carConfigList = s3Response;
+                var s3Response = await _s3Datastore.GetCarConfigListByCarId(item.CarId);
+                carConfigList.Add(s3Response);
             }
 
             return carConfigList;
@@ -83,6 +83,20 @@ namespace Backend.Domain
             var playerId = new Random().Next();
             var dynamoResponse = await _dynamoDatastore.InsertUser(playerId, userName, carCollectionList);
             var s3Response = await _s3Datastore.SaveUserProfileImg(playerId, userImg);
+
+            if (dynamoResponse && s3Response)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<bool> SaveUser(int id, string userName, IFormFile userImg, CarCollectionList carCollectionList)
+        {
+            var dynamoResponse = await _dynamoDatastore.InsertUser(id, userName, carCollectionList);
+            var s3Response = await _s3Datastore.SaveUserProfileImg(id, userImg);
 
             if (dynamoResponse && s3Response)
             {

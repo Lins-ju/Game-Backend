@@ -8,7 +8,7 @@ namespace Backend.Models.S3
 
         public CarCollectionList()
         {
-            
+            carCollectionList = new List<CarCollectionProperties>();
         }
 
         public CarCollectionList(CarCollectionProperties carItem)
