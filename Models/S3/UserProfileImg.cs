@@ -6,7 +6,7 @@ namespace Backend.Models
     {
         public string UserImgUrl { get; set; }
 
-        public UserProfileImg(int id, string userImgUrl)
+        public UserProfileImg(string id, string userImgUrl)
         {
             Type = "player";
             Id = id;

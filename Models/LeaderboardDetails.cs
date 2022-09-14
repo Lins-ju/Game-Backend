@@ -8,16 +8,16 @@ namespace Backend.Models
         public string UserId { get; set; }
 
         [JsonPropertyName("carName")]
-        public int CarId { get; set; }
+        public string CarId { get; set; }
 
         [JsonPropertyName("skinId")]
-        public int SkinId { get; set; }
+        public string SkinId { get; set; }
 
         [JsonPropertyName("timeStamp")]
         public long TimeStamp { get; set; }
 
 
-        public LeaderboardDetails(string userId, int carId, int skinId)
+        public LeaderboardDetails(string userId, string carId, string skinId)
         {
             this.UserId = userId;
             this.CarId = carId;

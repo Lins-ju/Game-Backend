@@ -4,10 +4,10 @@ namespace Backend.Models
 {
     public class Properties
     {
-        public int CarId { get; set; }
-        public int SkinId { get; set; }
+        public string CarId { get; set; }
+        public string SkinId { get; set; }
         public double Score { get; set; }
-        public Properties(int carId, int skinId, double score)
+        public Properties(string carId, string skinId, double score)
         {
             CarId = carId;
             SkinId = skinId;
@@ -33,8 +33,8 @@ namespace Backend.Models
         public static Properties FromDocument(Document document)
         {
             var dynamoEntryDocument = document["Properties"].AsDocument();
-            var carId = (int)dynamoEntryDocument["CarId"];
-            var skinId = (int)dynamoEntryDocument["SkinId"];
+            var carId = (string)dynamoEntryDocument["CarId"];
+            var skinId = (string)dynamoEntryDocument["SkinId"];
             var score = (double)dynamoEntryDocument["Score"];
 
             return new Properties(carId, skinId, score);

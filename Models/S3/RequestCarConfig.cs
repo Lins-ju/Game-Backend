@@ -14,7 +14,7 @@ namespace Backend.Models.S3
             CarImg = carImg;
         }
 
-        public RequestCarConfig(int id, string carName, int maxSpeed, CarType carType, IFormFile carImg)
+        public RequestCarConfig(string id, string carName, int maxSpeed, CarType carType, IFormFile carImg)
         {
             Id = id;
             CarName = carName;

@@ -38,8 +38,8 @@ namespace Backend.Models.S3
             CarCollectionList carCollectionList = new CarCollectionList();
             foreach(var item in documentList)
             {
-                var carId = (int)item["CarId"];
-                var skinId = (int)item["SkinId"];
+                var carId = (string)item["CarId"];
+                var skinId = (string)item["SkinId"];
 
                 var carCollection = new CarCollectionProperties(carId, skinId);
                 carCollectionList.carCollectionList.Add(carCollection);

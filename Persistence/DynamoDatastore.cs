@@ -86,7 +86,7 @@ namespace Backend.Persistence
             return leaderboardDetailList;
         }
 
-        public async Task<bool> InsertUser(int id, string userName, CarCollectionList carCollection)
+        public async Task<bool> InsertUser(string id, string userName, CarCollectionList carCollection)
         {
             var result = await _table.PutItemAsync(GameUser.ToDocument(new GameUser(id, userName, carCollection)));
             return result != null;

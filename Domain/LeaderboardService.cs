@@ -18,7 +18,7 @@ namespace Backend.Domain
             _s3Datastore = s3Datastore;
         }
 
-        public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score, int carId, int skinId)
+        public async Task<bool> SaveLeaderboardDetails(string trackId, string userId, double score, string carId, string skinId)
         {
             var redisResult = await _redisDatastore.SaveLeaderboard(trackId, userId, score);
 
@@ -80,7 +80,7 @@ namespace Backend.Domain
 
         public async Task<bool> SaveUser(string userName, IFormFile userImg, CarCollectionList carCollectionList)
         {
-            var playerId = new Random().Next();
+            string playerId = Guid.NewGuid().ToString();
             var dynamoResponse = await _dynamoDatastore.InsertUser(playerId, userName, carCollectionList);
             var s3Response = await _s3Datastore.SaveUserProfileImg(playerId, userImg);
 
@@ -93,7 +93,7 @@ namespace Backend.Domain
                 return false;
             }
         }
-        public async Task<bool> SaveUser(int id, string userName, IFormFile userImg, CarCollectionList carCollectionList)
+        public async Task<bool> SaveUser(string id, string userName, IFormFile userImg, CarCollectionList carCollectionList)
         {
             var dynamoResponse = await _dynamoDatastore.InsertUser(id, userName, carCollectionList);
             var s3Response = await _s3Datastore.SaveUserProfileImg(id, userImg);

@@ -13,16 +13,14 @@ namespace Backend.Persistence
     {
         private readonly JsonSerializerOptions options = new JsonSerializerOptions()
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
         public AmazonS3Client _s3Buckets;
         public string bucketParameter;
-
-        public string ObjectKey() 
+        public string RandomGuid() 
         { 
             return Guid.NewGuid().ToString();
         }
-        public static string randomGuid = Guid.NewGuid().ToString();
         public S3Datastore(AmazonS3Client s3Client, string bucketName)
         {
             bucketParameter = bucketName;
@@ -72,7 +70,7 @@ namespace Backend.Persistence
             var putObject = new PutObjectRequest
             {
                 BucketName = bucketParameter,
-                Key = ObjectKey(),
+                Key = RandomGuid(),
                 ContentBody = contentSerialized,
                 ContentType = "application/json"
             };
@@ -84,7 +82,7 @@ namespace Backend.Persistence
             var putObject = new PutObjectRequest
             {
                 BucketName = bucketParameter,
-                Key = $"{prefix}/" + ObjectKey(),
+                Key = $"{prefix}/" + RandomGuid(),
                 ContentBody = contentSerialized,
                 ContentType = "application/json"
             };
@@ -95,7 +93,7 @@ namespace Backend.Persistence
             var putObject = new PutObjectRequest
             {
                 BucketName = bucketParameter,
-                Key = "images/" + ObjectKey(),
+                Key = "images/" + RandomGuid(),
                 InputStream = imgFile.OpenReadStream()
             };
             return putObject;
@@ -104,7 +102,7 @@ namespace Backend.Persistence
         public async Task<IFormFile> ObjectGetImageByKey(string imgKey)
         {
             var imgResponse = await _s3Buckets.GetObjectAsync(bucketParameter, imgKey);
-            var filePath = await TransformToImageAndSave(imgResponse.ResponseStream);
+            var filePath = TransformToImageAndSave(imgResponse.ResponseStream);
             var imageToIFormFile = ImageToIFormFile(filePath);
             return imageToIFormFile;
         }
@@ -115,7 +113,7 @@ namespace Backend.Persistence
             return rd.Next();
         }
 
-        private async Task<string> TransformToImageAndSave(Stream stream)
+        private string TransformToImageAndSave(Stream stream)
         {
             var streamToByte = ConvertStreamToByteArray(stream);
             MemoryStream ms = new MemoryStream(streamToByte);
@@ -176,7 +174,7 @@ namespace Backend.Persistence
 
             return objectKeyList;
         }
-        public async Task<bool> SaveUserProfileImg(int id, IFormFile imgFile)
+        public async Task<bool> SaveUserProfileImg(string id, IFormFile imgFile)
         {
             var putImgObject = ObjectPostImage(imgFile);
             UserProfileImg playerConfig = new UserProfileImg(id, putImgObject.Key);
@@ -199,10 +197,10 @@ namespace Backend.Persistence
 
         public async Task<bool> SaveCarConfig(string carName, int maxSpeed, CarType carType, IFormFile carImgUrl)
         {
-            int skinId = RandomNum();
+            string skinId = RandomGuid();
             var skinResponse = await SaveSkinConfig(skinId, carImgUrl);
 
-            CarConfig carConfig = new CarConfig(RandomNum(), carName, maxSpeed, carType, skinId);
+            CarConfig carConfig = new CarConfig(RandomGuid(), carName, maxSpeed, carType, skinId);
             string carConfigSerialized = JsonSerializer.Serialize(carConfig, options);
 
             var putObject = ObjectPostJson(carConfigSerialized, "cars");
@@ -220,7 +218,7 @@ namespace Backend.Persistence
         }
 
         //Development purposes
-        public async Task<bool> SaveCarConfig(int carId, int skinId, string carName, int maxSpeed, CarType carType, IFormFile skinImg)
+        public async Task<bool> SaveCarConfig(string carId, string skinId, string carName, int maxSpeed, CarType carType, IFormFile skinImg)
         {
             var skinResponse = await SaveSkinConfig(skinId, skinImg);
 
@@ -243,7 +241,7 @@ namespace Backend.Persistence
 
         public async Task<bool> SaveTrackConfig(string trackName)
         {
-            TrackConfig trackConfig = new TrackConfig(RandomNum(), trackName);
+            TrackConfig trackConfig = new TrackConfig(RandomGuid(), trackName);
             string trackConfigSerialized = JsonSerializer.Serialize(trackConfig, options);
 
             var putTrackObject = ObjectPostJson(trackConfigSerialized);
@@ -262,7 +260,7 @@ namespace Backend.Persistence
 
         public async Task<bool> SaveSkinConfig(string skinImgUrl)
         {
-            SkinConfig skinConfig = new SkinConfig(RandomNum(), skinImgUrl);
+            SkinConfig skinConfig = new SkinConfig(RandomGuid(), skinImgUrl);
             string trackConfigSerialized = JsonSerializer.Serialize(skinConfig, options);
 
             var putObject = ObjectPostJson(trackConfigSerialized, "skin");
@@ -280,7 +278,7 @@ namespace Backend.Persistence
         }
 
         //Development purposes
-        public async Task<bool> SaveSkinConfig(int id, IFormFile skinImg)
+        public async Task<bool> SaveSkinConfig(string id, IFormFile skinImg)
         {
             var postImg = ObjectPostImage(skinImg);
             SkinConfig skinConfig = new SkinConfig(id, postImg.Key);
@@ -395,7 +393,7 @@ namespace Backend.Persistence
             return carConfigList;
         }
 
-        public async Task<RequestCarConfig> GetCarConfigListByCarId(int carId)
+        public async Task<RequestCarConfig> GetCarConfigListByCarId(string carId)
         {
             RequestCarConfig requestCarConfig = new RequestCarConfig();
             var getCarsAvailable = await ListAllObjects("cars");
@@ -415,7 +413,7 @@ namespace Backend.Persistence
             return requestCarConfig;
         }
 
-        public async Task<SkinConfig> GetSkinConfigBySkinId(int skinId)
+        public async Task<SkinConfig> GetSkinConfigBySkinId(string skinId)
         {
             SkinConfig skin = new SkinConfig();
             var getSkin = await ListAllObjects("skin");
@@ -431,7 +429,7 @@ namespace Backend.Persistence
             return skin;
         }
 
-        public async Task<UserProfileImg> GetUserProfileImgById(int playerId)
+        public async Task<UserProfileImg> GetUserProfileImgById(string playerId)
         {
             UserProfileImg playerConfig = new UserProfileImg();
             var fileList = await ListAllObjects();

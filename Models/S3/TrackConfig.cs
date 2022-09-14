@@ -3,7 +3,7 @@ namespace Backend.Models.S3
     public class TrackConfig : AbstractConfig
     {
         public string TrackName { get; set; }
-        public TrackConfig(int id, string trackName)
+        public TrackConfig(string id, string trackName)
         {
             Type = "track";
             Id = id;

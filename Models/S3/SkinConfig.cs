@@ -4,7 +4,7 @@ namespace Backend.Models.S3
     {
         public string SkinImgUrl { get; set; }
 
-        public SkinConfig(int id, string skinImgUrl)
+        public SkinConfig(string id, string skinImgUrl)
         {
             Type = "skin";
             Id = id;

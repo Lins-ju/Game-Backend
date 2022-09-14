@@ -9,7 +9,7 @@ namespace Backend.Models
     public class GameUser
     {
         [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public string Id { get; set; }
 
         [JsonPropertyName("userName")]
         public string UserName { get; set; }
@@ -22,7 +22,7 @@ namespace Backend.Models
             
         }
 
-        public GameUser(int id, string userName, CarCollectionList carCollectionList)
+        public GameUser(string id, string userName, CarCollectionList carCollectionList)
         {
             Id = id;
             UserName = userName;
@@ -45,7 +45,7 @@ namespace Backend.Models
         public static GameUser FromDocument(Document document)
         {
             var carCollectionList = CarCollectionList.FromDocumentToList(document["CarCollectionList"].AsListOfDocument());
-            var id = (int)document["Id"];
+            var id = (string)document["Id"];
             var userName = (string)document["UserName"];
 
             return new GameUser(id, userName, carCollectionList);
