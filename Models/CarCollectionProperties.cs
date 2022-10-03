@@ -24,5 +24,9 @@ namespace Backend.Models
         {
             CarId = car.Id;
         }
+        public CarCollectionProperties()
+        {
+            
+        }
     }
 }

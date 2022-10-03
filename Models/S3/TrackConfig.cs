@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
 namespace Backend.Models.S3
 {
     public class TrackConfig : AbstractConfig
     {
+        [JsonPropertyName("trackName")]
         public string TrackName { get; set; }
         public TrackConfig(string id, string trackName)
         {
@@ -11,7 +13,7 @@ namespace Backend.Models.S3
         }
         public TrackConfig()
         {
-            
+
         }
     }
 }

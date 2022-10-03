@@ -5,26 +5,41 @@ using Backend.Models;
 using Microsoft.Extensions.Options;
 using Amazon.CloudFront;
 using Backend.Models.S3;
+using Amazon.Runtime;
 
 namespace Backend.Persistence
 {
     public class DynamoDatastore
     {
-        private readonly Table _table;
-        public DynamoDatastore(IAmazonDynamoDB client, IOptions<DynamoOptions> options)
+        private readonly Table _tableLB;
+        private readonly Table _tableGU;
+        // public DynamoDatastore(IAmazonDynamoDB client, IOptions<DynamoOptions> options)
+        // {
+        //     this._tableLB = Table.LoadTable(client, options.Value.TableName);
+        // }
+
+        public DynamoDatastore()
         {
-            this._table = Table.LoadTable(client, options.Value.TableName);
+            var creds = new BasicAWSCredentials("fakeMyKeyId", "fakeSecretAccessKey");
+            var clientConfigDynamo = new AmazonDynamoDBConfig
+            {
+                ServiceURL = "http://localhost:4566",
+                AuthenticationRegion = "us-east-1"
+            };
+            var client = new AmazonDynamoDBClient(creds, clientConfigDynamo);
+            _tableLB = Table.LoadTable(client, "Leaderboard");
+            _tableGU = Table.LoadTable(client, "Users");
         }
 
         public async Task<bool> Insert(LeaderboardData leaderboardData)
         {
-            var response = await _table.PutItemAsync(LeaderboardData.ToDocument(leaderboardData));
+            var response = await _tableLB.PutItemAsync(LeaderboardData.ToDocument(leaderboardData));
             return response != null;
         }
 
         public async Task<LeaderboardData?> GetItem(string partitionKey, string rangeKey)
         {
-            var result = await _table.GetItemAsync(partitionKey, rangeKey);
+            var result = await _tableLB.GetItemAsync(partitionKey, rangeKey);
             if (result != null)
             {
                 return LeaderboardData.FromDocument(result);
@@ -40,7 +55,7 @@ namespace Backend.Persistence
 
             queryFilter.AddCondition("TrackId", QueryOperator.Equal, partitionKey);
 
-            var search = _table.Query(queryFilter);
+            var search = _tableLB.Query(queryFilter);
 
             var retrievedDocuments = new List<Document>();
 
@@ -85,16 +100,15 @@ namespace Backend.Persistence
             }
             return leaderboardDetailList;
         }
-
         public async Task<bool> InsertUser(string id, string userName, CarCollectionList carCollection)
         {
-            var result = await _table.PutItemAsync(GameUser.ToDocument(new GameUser(id, userName, carCollection)));
-            return result != null;
+            var result = await _tableGU.PutItemAsync(GameUser.ToDocument(new GameUser(id, userName, carCollection)));
+            return result == null;
         }
 
         public async Task<GameUser> GetGameUserInfo(string userName)
         {
-            var gameUserDocument = await _table.GetItemAsync(userName);
+            var gameUserDocument = await _tableGU.GetItemAsync(userName);
             var gameUser = GameUser.FromDocument(gameUserDocument);
             return gameUser;
         }

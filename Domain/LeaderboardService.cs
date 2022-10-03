@@ -78,27 +78,16 @@ namespace Backend.Domain
             return carConfigList;
         }
 
-        public async Task<bool> SaveUser(string userName, IFormFile userImg, CarCollectionList carCollectionList)
+        public async Task<bool> SaveUser(string userName, string userImg, CarCollectionList carCollectionList)
         {
             string playerId = Guid.NewGuid().ToString();
             var dynamoResponse = await _dynamoDatastore.InsertUser(playerId, userName, carCollectionList);
-            var s3Response = await _s3Datastore.SaveUserProfileImg(playerId, userImg);
-
-            if (dynamoResponse && s3Response)
+            if (dynamoResponse)
             {
-                return true;
+                var s3Response = await _s3Datastore.SaveUserProfileImg(playerId, userImg);
             }
-            else
-            {
-                return false;
-            }
-        }
-        public async Task<bool> SaveUser(string id, string userName, IFormFile userImg, CarCollectionList carCollectionList)
-        {
-            var dynamoResponse = await _dynamoDatastore.InsertUser(id, userName, carCollectionList);
-            var s3Response = await _s3Datastore.SaveUserProfileImg(id, userImg);
 
-            if (dynamoResponse && s3Response)
+            if (dynamoResponse)
             {
                 return true;
             }
@@ -114,7 +103,7 @@ namespace Backend.Domain
             return dynamoResult;
         }
 
-        public async Task<bool> SaveCar(string carName, int maxSpeed, CarType carType, IFormFile carImgUrl)
+        public async Task<bool> SaveCar(string carName, int maxSpeed, string carImgUrl, CarType carType)
         {
             var response = await _s3Datastore.SaveCarConfig(carName, maxSpeed, carType, carImgUrl);
             return response;

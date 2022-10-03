@@ -16,6 +16,11 @@ namespace Backend.Models.S3
             carCollectionList.Add(carItem);
         }
 
+        public CarCollectionList(List<CarCollectionProperties> carItem)
+        {
+            carCollectionList = carItem;
+        }
+
         public static List<Document> ListToDocument(CarCollectionList carCollectionList)
         {
             List<Document> listOfDocuments = new List<Document>();

@@ -6,6 +6,7 @@ using Backend.Models.S3;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Net;
+using Amazon.Runtime;
 
 namespace Backend.Persistence
 {
@@ -25,6 +26,21 @@ namespace Backend.Persistence
         {
             bucketParameter = bucketName;
             _s3Buckets = s3Client;
+        }
+
+        public S3Datastore()
+        {
+            var creds = new BasicAWSCredentials("fakeMyKeyId", "fakeSecretAccessKey");
+            var clientConfigS3 = new AmazonS3Config
+            {
+                ServiceURL = "http://localhost:4566",
+                AuthenticationRegion = "us-east-1",
+                ForcePathStyle = true
+            };
+            var amazonS3Client = new AmazonS3Client(creds, clientConfigS3);
+            
+            bucketParameter = "leaderboard-configs";
+            _s3Buckets = amazonS3Client;
         }
         public async Task<string> GetFileSerialized(string objectKey)
         {
@@ -51,6 +67,18 @@ namespace Backend.Persistence
                 }
                 return mStream.ToArray();
             }
+        }
+
+        public string StreamToBase64(Stream stream)
+        {
+            byte[] bytes;
+            using(var memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                bytes = memoryStream.ToArray();
+            }
+            string base64 = Convert.ToBase64String(bytes);
+            return base64;
         }
         public IFormFile ImageToIFormFile(string filePath)
         {
@@ -88,23 +116,23 @@ namespace Backend.Persistence
             };
             return putObject;
         }
-        public PutObjectRequest ObjectPostImage(IFormFile imgFile)
+        public PutObjectRequest ObjectPostImage(Stream imgStream)
         {
             var putObject = new PutObjectRequest
             {
                 BucketName = bucketParameter,
                 Key = "images/" + RandomGuid(),
-                InputStream = imgFile.OpenReadStream()
+                InputStream = imgStream
             };
             return putObject;
         }
 
-        public async Task<IFormFile> ObjectGetImageByKey(string imgKey)
+        public async Task<string> ObjectGetImageByKey(string imgKey)
         {
             var imgResponse = await _s3Buckets.GetObjectAsync(bucketParameter, imgKey);
-            var filePath = TransformToImageAndSave(imgResponse.ResponseStream);
-            var imageToIFormFile = ImageToIFormFile(filePath);
-            return imageToIFormFile;
+            using var reader = new StreamReader(imgResponse.ResponseStream);
+            var imgBase64String = await reader.ReadToEndAsync();
+            return imgBase64String;
         }
 
         public int RandomNum()
@@ -113,39 +141,32 @@ namespace Backend.Persistence
             return rd.Next();
         }
 
-        private string TransformToImageAndSave(Stream stream)
+        private string TransformToImageToBase64(Stream stream)
         {
-            var streamToByte = ConvertStreamToByteArray(stream);
-            MemoryStream ms = new MemoryStream(streamToByte);
-            Image imgFromStream = Image.FromStream(ms);
-            string fileName = Guid.NewGuid().ToString();
-            string filePath = @$"C:\Users\JulioLins\Desktop\GamePA\Backend\Images\{fileName}.{imgFromStream.RawFormat}";
-            imgFromStream.Save(filePath, ImageFormat.Png);
-
-            return filePath;
+            var streamToByte = StreamToBase64(stream);
+            return streamToByte;
         }
 
         public async Task<List<string>> ListAllObjects(string prefix)
         {
-            ListObjectsRequest listRequest = new ListObjectsRequest
+            ListObjectsV2Request listRequest = new ListObjectsV2Request
             {
                 BucketName = bucketParameter,
                 Prefix = prefix + "/",
                 Delimiter = "/"
             };
 
-            ListObjectsResponse listResponse;
+            ListObjectsV2Response listResponse;
             List<string> objectKeyList = new List<string>();
 
             do
             {
-                listResponse = await _s3Buckets.ListObjectsAsync(listRequest);
+                listResponse = await _s3Buckets.ListObjectsV2Async(listRequest);
                 foreach (S3Object obj in listResponse.S3Objects)
                 {
                     objectKeyList.Add(obj.Key);
                 }
-
-                listRequest.Marker = listResponse.NextMarker;
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
             } while (listResponse.IsTruncated);
 
             return objectKeyList;
@@ -153,30 +174,29 @@ namespace Backend.Persistence
 
         public async Task<List<string>> ListAllObjects()
         {
-            ListObjectsRequest listRequest = new ListObjectsRequest
+            ListObjectsV2Request listRequest = new ListObjectsV2Request
             {
                 BucketName = bucketParameter
             };
 
-            ListObjectsResponse listResponse;
+            ListObjectsV2Response listResponse = new ListObjectsV2Response();
             List<string> objectKeyList = new List<string>();
 
             do
             {
-                listResponse = await _s3Buckets.ListObjectsAsync(listRequest);
+                listResponse = await _s3Buckets.ListObjectsV2Async(listRequest);
                 foreach (S3Object obj in listResponse.S3Objects)
                 {
                     objectKeyList.Add(obj.Key);
                 }
-
-                listRequest.Marker = listResponse.NextMarker;
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
             } while (listResponse.IsTruncated);
 
             return objectKeyList;
         }
-        public async Task<bool> SaveUserProfileImg(string id, IFormFile imgFile)
+        public async Task<bool> SaveUserProfileImg(string id, string imgBase64)
         {
-            var putImgObject = ObjectPostImage(imgFile);
+            var putImgObject = ObjectPostJson(imgBase64);
             UserProfileImg playerConfig = new UserProfileImg(id, putImgObject.Key);
             string playerConfigSerialized = JsonSerializer.Serialize(playerConfig, options);
 
@@ -195,10 +215,13 @@ namespace Backend.Persistence
 
         }
 
-        public async Task<bool> SaveCarConfig(string carName, int maxSpeed, CarType carType, IFormFile carImgUrl)
+        public async Task<bool> SaveCarConfig(string carName, int maxSpeed, CarType carType, string carImgUrl)
         {
             string skinId = RandomGuid();
-            var skinResponse = await SaveSkinConfig(skinId, carImgUrl);
+            var postSkinImg = ObjectPostJson(carImgUrl);
+            var putObjectImg = await _s3Buckets.PutObjectAsync(postSkinImg);
+            var skinResponse = await SaveSkinConfig(skinId, postSkinImg.Key);
+
 
             CarConfig carConfig = new CarConfig(RandomGuid(), carName, maxSpeed, carType, skinId);
             string carConfigSerialized = JsonSerializer.Serialize(carConfig, options);
@@ -206,28 +229,6 @@ namespace Backend.Persistence
             var putObject = ObjectPostJson(carConfigSerialized, "cars");
 
             var response = await _s3Buckets.PutObjectAsync(putObject);
-
-            if (response.HttpStatusCode == HttpStatusCode.OK && skinResponse)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        //Development purposes
-        public async Task<bool> SaveCarConfig(string carId, string skinId, string carName, int maxSpeed, CarType carType, IFormFile skinImg)
-        {
-            var skinResponse = await SaveSkinConfig(skinId, skinImg);
-
-            CarConfig carConfig = new CarConfig(carId, carName, maxSpeed, carType, skinId);
-            string carConfigSerialized = JsonSerializer.Serialize(carConfig, options);
-
-            var putObjectCar = ObjectPostJson(carConfigSerialized, "cars");
-
-            var response = await _s3Buckets.PutObjectAsync(putObjectCar);
 
             if (response.HttpStatusCode == HttpStatusCode.OK && skinResponse)
             {
@@ -258,37 +259,14 @@ namespace Backend.Persistence
             }
         }
 
-        public async Task<bool> SaveSkinConfig(string skinImgUrl)
+        public async Task<bool> SaveSkinConfig(string id, string skinImgUrl)
         {
-            SkinConfig skinConfig = new SkinConfig(RandomGuid(), skinImgUrl);
+            SkinConfig skinConfig = new SkinConfig(id, skinImgUrl);
             string trackConfigSerialized = JsonSerializer.Serialize(skinConfig, options);
 
             var putObject = ObjectPostJson(trackConfigSerialized, "skin");
 
             var response = await _s3Buckets.PutObjectAsync(putObject);
-
-            if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        //Development purposes
-        public async Task<bool> SaveSkinConfig(string id, IFormFile skinImg)
-        {
-            var postImg = ObjectPostImage(skinImg);
-            SkinConfig skinConfig = new SkinConfig(id, postImg.Key);
-            string trackConfigSerialized = JsonSerializer.Serialize(skinConfig, options);
-
-            var putObjectJson = ObjectPostJson(trackConfigSerialized, "skin");
-
-            var response = await _s3Buckets.PutObjectAsync(putObjectJson);
-            var responseImg = await _s3Buckets.PutObjectAsync(postImg);
-
 
             if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -365,19 +343,19 @@ namespace Backend.Persistence
 
         public async Task<List<CarConfig>> GetCarConfigAvailableList()
         {
-            ListObjectsRequest listRequest = new ListObjectsRequest
+            ListObjectsV2Request listRequest = new ListObjectsV2Request
             {
                 BucketName = bucketParameter,
                 Prefix = "cars/",
                 Delimiter = "/"
             };
 
-            ListObjectsResponse listResponse;
+            ListObjectsV2Response listResponse;
             List<CarConfig> carConfigList = new List<CarConfig>();
 
             do
             {
-                listResponse = await _s3Buckets.ListObjectsAsync(listRequest);
+                listResponse = await _s3Buckets.ListObjectsV2Async(listRequest);
                 foreach (S3Object obj in listResponse.S3Objects)
                 {
                     var response = await _s3Buckets.GetObjectAsync(bucketParameter, obj.Key);
@@ -387,7 +365,7 @@ namespace Backend.Persistence
                     carConfigList.Add(fileDeserialized);
                 }
 
-                listRequest.Marker = listResponse.NextMarker;
+                listRequest.ContinuationToken = listResponse.NextContinuationToken;
             } while (listResponse.IsTruncated);
 
             return carConfigList;
@@ -422,7 +400,9 @@ namespace Backend.Persistence
                 var skinConfigFromObject = await GetSkinConfig(objectKey);
                 if (skinConfigFromObject.Id == skinId)
                 {
-                    skin = skinConfigFromObject;
+                    skin.Id = skinConfigFromObject.Id;
+                    skin.SkinImgUrl = skinConfigFromObject.SkinImgUrl;
+                    skin.Type = skinConfigFromObject.Type;
                 }
             }
 

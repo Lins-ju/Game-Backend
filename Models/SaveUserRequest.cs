@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Backend.Models.S3;
 
 namespace Backend.Models
@@ -5,14 +6,17 @@ namespace Backend.Models
     public class SaveUserRequest
     {
         public string UserName { get; set; }
-        public CarCollectionList CarCollectionList { get; set; }
-        public IFormFile UserImg { get; set; }
+        public string UserProfileImg { get; set; }
+        public List<CarCollectionProperties> CarCollectionList { get; set; }
 
-        public SaveUserRequest(string userName, CarCollectionList carCollection, IFormFile userImg)
+        public SaveUserRequest(string userName, string userProfileImg, List<CarCollectionProperties> carCollection)
         {
             UserName = userName;
-            CarCollectionList = carCollection;
-            UserImg = userImg;
+            UserProfileImg = userProfileImg; 
+            CarCollectionList = carCollection; 
+        }
+        public SaveUserRequest()
+        {    
         }
     }
 }
