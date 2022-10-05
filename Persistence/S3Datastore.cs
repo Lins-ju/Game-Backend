@@ -385,6 +385,7 @@ namespace Backend.Persistence
                     requestCarConfig.MaxSpeed = getCarConfigResponse.MaxSpeed;
                     requestCarConfig.CarImg = getCarConfigResponse.CarImg;
                     requestCarConfig.CarType = getCarConfigResponse.CarType;
+                    requestCarConfig.SkinId = getCarConfigResponse.SkinId;
                 }
             }
 

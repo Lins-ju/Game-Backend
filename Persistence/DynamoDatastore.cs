@@ -34,7 +34,7 @@ namespace Backend.Persistence
         public async Task<bool> Insert(LeaderboardData leaderboardData)
         {
             var response = await _tableLB.PutItemAsync(LeaderboardData.ToDocument(leaderboardData));
-            return response != null;
+            return response == null;
         }
 
         public async Task<LeaderboardData?> GetItem(string partitionKey, string rangeKey)

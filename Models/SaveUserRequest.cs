@@ -9,14 +9,15 @@ namespace Backend.Models
         public string UserProfileImg { get; set; }
         public List<CarCollectionProperties> CarCollectionList { get; set; }
 
+        [JsonConstructor]
+        public SaveUserRequest()
+        {    
+        }
         public SaveUserRequest(string userName, string userProfileImg, List<CarCollectionProperties> carCollection)
         {
             UserName = userName;
             UserProfileImg = userProfileImg; 
             CarCollectionList = carCollection; 
-        }
-        public SaveUserRequest()
-        {    
         }
     }
 }
