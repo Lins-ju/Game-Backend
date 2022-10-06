@@ -81,9 +81,9 @@ namespace Backend.Persistence
             List<LeaderboardDetail> leaderboardDetailList = new List<LeaderboardDetail>();
             LeaderboardDetail leaderboardDetail = new LeaderboardDetail();
 
-            foreach (var dataItem in leaderboardDataList)
+            foreach (var entryItem in leaderboardEntries.Leaderboards)
             {
-                foreach (var entryItem in leaderboardEntries.Leaderboards)
+                foreach (var dataItem in leaderboardDataList)
                 {
                     if (entryItem == null)
                     {
