@@ -1,53 +1,63 @@
+using System.Drawing;
+using Amazon.DynamoDBv2;
+using Amazon.Runtime;
+using Amazon.S3;
 using Backend.Domain;
 using Backend.Models;
 using Backend.Models.S3;
+using Backend.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Backend.Controllers
 {
-    [Route("api/tool")]
-    public class GameAdminController
+    [Route("api/tools")]
+    [ApiController]
+    public class ToolsController : ControllerBase
     {
 
-        private readonly LeaderboardService leaderboardService;
+        private readonly LeaderboardService _leaderboardService;
 
-        public GameAdminController(LeaderboardService leaderboardService)
+        public ToolsController(LeaderboardService leaderboardService)
         {
-            this.leaderboardService = leaderboardService;
+            _leaderboardService = leaderboardService;
         }
 
-        [Route("saveleaderboards")]
+        [Route("saveLeaderboards")]
         [HttpPost]
-
-        public async void SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
+        public async Task<bool> SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
         {
-            await leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, saveScoreRequest.Score,
+            double intToDouble = (double)saveScoreRequest.Score;
+            var result = await _leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, intToDouble,
             saveScoreRequest.CarId, saveScoreRequest.SkinId);
-        }
-
-        [Route("saveuser")]
-        [HttpPost]
-
-        public async void SaveUser(SaveUserRequest saveUser)
-        {
-            await leaderboardService.SaveUser(saveUser.UserName, saveUser.UserImg, saveUser.CarCollectionList);
-        }
-
-        [Route("savecars")]
-        [HttpPost]
-
-        public async Task<bool> SaveCar(SaveCarRequest saveCar)
-        {
-            var result = await leaderboardService.SaveCar(saveCar.CarName, saveCar.MaxSpeed, saveCar.CarType, saveCar.CarSkinImg);
             return result;
         }
-        
-        [Route("getuserinfo")]
-        [HttpGet]
+
+        [Route("saveUser")]
+        [HttpPost]
+        public async Task<bool> SaveUser(SaveUserRequest saveUser)
+        {
+            var collectionList = new CarCollectionList(saveUser.CarCollectionList);
+            var result = await _leaderboardService.SaveUser(saveUser.UserName, saveUser.UserProfileImg, collectionList);
+            return result;
+        }
+
+        [Route("saveCars")]
+        [HttpPost]
+        public async Task<bool> SaveCar(SaveCarRequest saveCar)
+        {
+            var intToCarType = (CarType)saveCar.CarType;
+            var result = await _leaderboardService.SaveCar(saveCar.CarName, saveCar.MaxSpeed, saveCar.CarSkinImg, intToCarType);
+            return result;
+            
+        }
+
+        [Route("getCarCollection")]
+        [HttpPost]
 
         public async Task<List<RequestCarConfig>> GetCarConfigByPlayer(UserRequest user)
         {
-            var response = await leaderboardService.GetCarsAvailableByPlayer(user.UserName);
+            var response = await _leaderboardService.GetCarsAvailableByPlayer(user.UserId);
             return response;
         }
     }

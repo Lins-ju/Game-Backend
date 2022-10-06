@@ -6,7 +6,18 @@ namespace Backend.Models
     {
         public string CarName { get; set; }
         public int MaxSpeed { get; set; }
-        public CarType CarType { get; set; }
-        public IFormFile CarSkinImg { get; set; }
+        public string CarSkinImg { get; set; }
+        public int CarType { get; set; }
+
+        public SaveCarRequest(string carName, int maxSpeed, string carSkinImg, int carType)
+        {
+            CarName = carName;
+            MaxSpeed = maxSpeed;
+            CarSkinImg = carSkinImg;
+            CarType = carType; 
+        }
+        public SaveCarRequest()
+        {
+        }
     }
 }

@@ -2,9 +2,9 @@ namespace Backend.Models.S3
 {
     public class GetTrackConfigResponse
     {
-        public int TrackId { get; set; }
+        public string TrackId { get; set; }
 
-        public GetTrackConfigResponse(int trackId)
+        public GetTrackConfigResponse(string trackId)
         {
             TrackId = trackId;
         }

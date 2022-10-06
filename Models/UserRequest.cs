@@ -2,11 +2,15 @@ namespace Backend.Models
 {
     public class UserRequest
     {
-        public string UserName { get; set; }
+        public string UserId { get; set; }
 
-        public UserRequest(string userName)
+        public UserRequest()
         {
-            UserName = userName;
+
+        }
+        public UserRequest(string userId)
+        {
+            UserId = userId;
         }
     }
 }

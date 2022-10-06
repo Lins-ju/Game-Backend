@@ -1,10 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace Backend.Models.S3
 {
     public class SkinConfig : AbstractConfig
     {
+        [JsonPropertyName("skinImgUrl")]
         public string SkinImgUrl { get; set; }
 
-        public SkinConfig(int id, string skinImgUrl)
+        public SkinConfig(string id, string skinImgUrl)
         {
             Type = "skin";
             Id = id;

@@ -12,10 +12,10 @@ namespace Backend.Models
         public double Score { get; set; }
 
         [JsonPropertyName("carId")]
-        public int CarId { get; set; }
+        public string CarId { get; set; }
 
         [JsonPropertyName("skinId")]
-        public int SkinId { get; set; }
+        public string SkinId { get; set; }
 
         [JsonPropertyName("timeStamp")]
         public long TimeStamp { get; set; }

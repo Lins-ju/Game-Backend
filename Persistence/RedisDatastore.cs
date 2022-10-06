@@ -9,9 +9,6 @@ namespace Backend.Persistence
 {
     public class RedisDatastore
     {
-
-        // constructor com IOptions<RedisOptions> => endpoint, password, port
-        private readonly Persistence.DynamoDatastore _dynamoDatastore;
         private readonly ConnectionMultiplexer redis;
         private readonly IDatabase db;
         private readonly JsonSerializerOptions option = new()
@@ -19,9 +16,14 @@ namespace Backend.Persistence
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public RedisDatastore(IOptions<RedisOptions> redisOptions)
+        // public RedisDatastore(IOptions<RedisOptions> redisOptions)
+        // {
+        //     redis = ConnectionMultiplexer.Connect($"{redisOptions.Value.Endpoint}:{redisOptions.Value.Port}");
+        //     db = redis.GetDatabase();
+        // }
+        public RedisDatastore()
         {
-            redis = ConnectionMultiplexer.Connect($"{redisOptions.Value.Endpoint}:{redisOptions.Value.Port}");
+            redis = ConnectionMultiplexer.Connect("localhost:6379");
             db = redis.GetDatabase();
         }
         public async Task<bool> SaveLeaderboard(string trackId, string userId, double score)
