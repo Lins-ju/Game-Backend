@@ -4,7 +4,7 @@ namespace Backend.Models
 {
     public class LeaderboardDetail
     {
-        [JsonPropertyName("userName")]
+        [JsonPropertyName("userId")]
         public string UserId { get; set; }
 
         [JsonPropertyName("score")]

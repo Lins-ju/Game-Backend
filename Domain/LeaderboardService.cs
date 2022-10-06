@@ -24,9 +24,16 @@ namespace Backend.Domain
 
             LeaderboardData leaderboardData = new LeaderboardData(trackId, userId, new Properties(carId, skinId, score));
             var dynamoResult = await _dynamoDatastore.Insert(leaderboardData);
+            var saveTrackId = await _s3Datastore.SaveLeaderboardTrackId(trackId);
 
-
-            return redisResult && dynamoResult;
+            if (redisResult && dynamoResult && saveTrackId)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
 
@@ -35,16 +42,27 @@ namespace Backend.Domain
             return await _redisDatastore.GetScores(trackId);
         }
 
+        public async Task<List<string>> GetTrackIdsForLeaderboard()
+        {
+            List<string> listOfRealKeys = new List<string>();
+            var listOfKeys = await _s3Datastore.GetTrackIds();
+            foreach (var key in listOfKeys)
+            {
+                var realKey = key.Replace("trackids", "");
+                listOfRealKeys.Add(realKey);
+            }
+
+            return listOfRealKeys;
+        }
+
         public async Task<GetFullLeaderboard> GetLeaderboardRecords(string trackId)
         {
-            var scoreResponse = await _redisDatastore.GetScores(trackId);
-
-            var leaderboardDetailsResponse = await _dynamoDatastore.LeadeboardDataListByTrackId(trackId);
-
             var FullLeaderboard = new GetFullLeaderboard();
 
-            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(scoreResponse, leaderboardDetailsResponse);
+            var scoreResponse = await _redisDatastore.GetScores(trackId);
+            var leaderboardDetailsResponse = await _dynamoDatastore.LeadeboardDataListByTrackId(trackId);
 
+            var leaderboard = _dynamoDatastore.DisplayFullLeaderboard(scoreResponse, leaderboardDetailsResponse);
             FullLeaderboard.AddLeaderboardDetail(leaderboard);
 
             return FullLeaderboard;
@@ -76,6 +94,12 @@ namespace Backend.Domain
             }
 
             return carConfigList;
+        }
+
+        public async Task<RequestCarConfig> GetCarConfigByCarId(string carId)
+        {
+            var s3Response = await _s3Datastore.GetCarConfigListByCarId(carId);
+            return s3Response;
         }
 
         public async Task<bool> SaveUser(string userName, string userImg, CarCollectionList carCollectionList)

@@ -25,10 +25,12 @@ namespace Backend.Controllers
 
         [Route("saveLeaderboards")]
         [HttpPost]
-        public async void SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
+        public async Task<bool> SaveLeaderboardRecords(SaveScoreRequest saveScoreRequest)
         {
-            await _leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, saveScoreRequest.Score,
+            double intToDouble = (double)saveScoreRequest.Score;
+            var result = await _leaderboardService.SaveLeaderboardDetails(saveScoreRequest.TrackId, saveScoreRequest.UserId, intToDouble,
             saveScoreRequest.CarId, saveScoreRequest.SkinId);
+            return result;
         }
 
         [Route("saveUser")]

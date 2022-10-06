@@ -23,18 +23,35 @@ namespace Backend.Controllers
             _leaderboardService = leaderboardService;
         }
 
-        [Route("getleaderboards")]
+        [Route("getTrackIds")]
         [HttpGet]
+
+        public async Task<List<string>> GetTrackIds()
+        {
+            var result = await _leaderboardService.GetTrackIdsForLeaderboard();
+            return result;
+        }
+
+        [Route("getLeaderboards")]
+        [HttpPost]
 
         public async Task<GetFullLeaderboard> GetLeaderboardRecords(GetLeaderboardRequest getLeaderboardRequest)
         {
 
             var bindedResult = await _leaderboardService.GetLeaderboardRecords(getLeaderboardRequest.TrackId);
-
             return bindedResult;
         }
 
-        [Route("getcarsavailable")]
+        [Route("getCarByCarId")]
+        [HttpPost]
+
+        public async Task<RequestCarConfig> GetCarByCarConfig(string carId)
+        {
+            var result = await _leaderboardService.GetCarConfigByCarId(carId);
+            return result;
+        }
+
+        [Route("getCarsAvailable")]
         [HttpGet]
 
         public async Task<List<RequestCarConfig>> GetCarsAvailable()

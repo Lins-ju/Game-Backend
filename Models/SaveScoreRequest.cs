@@ -6,7 +6,7 @@ namespace Backend.Models
     {
         //Leaderboard Data
 
-        [JsonPropertyName("trackName")] 
+        [JsonPropertyName("trackId")] 
         public string TrackId { get; set; }
 
         [JsonPropertyName("userId")]   

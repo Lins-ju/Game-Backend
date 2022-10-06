@@ -194,6 +194,26 @@ namespace Backend.Persistence
 
             return objectKeyList;
         }
+
+        public async Task<bool> SaveLeaderboardTrackId(string trackId)
+        {
+            var putObject = new PutObjectRequest
+            {
+                BucketName = bucketParameter,
+                Key = "trackids/" + trackId
+            };
+
+            var response = await _s3Buckets.PutObjectAsync(putObject);
+
+            if(response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
+        }
         public async Task<bool> SaveUserProfileImg(string id, string imgBase64)
         {
             var putImgObject = ObjectPostJson(imgBase64);
@@ -276,6 +296,12 @@ namespace Backend.Persistence
             {
                 return false;
             }
+        }
+
+        public async Task<List<string>> GetTrackIds()
+        {
+            var listOfKeys = await ListAllObjects("trackids");
+            return listOfKeys;
         }
 
         public async Task<UserProfileImg> GetUserProfileImg(string objectKey)
